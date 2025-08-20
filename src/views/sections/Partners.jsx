@@ -38,16 +38,19 @@ export default function Partners() {
           width: "max-content",
         }}
         component={motion.div}
-        animate={{ x: ["0%", "-50%"] }}
+        animate={{ x: ["-50%", "0%"] }} // move left to right
         transition={{
           repeat: Infinity,
-          duration: 25,
+          duration: 60, // slow speed
           ease: "linear",
         }}
       >
         {/* Duplicate the list twice for seamless loop */}
         {[...Array(2)].map((_, loopIndex) => (
-          <Box key={loopIndex} sx={{ display: "flex", gap: { xs: 6, md: 10, lg: 14 } }}>
+          <Box
+            key={loopIndex}
+            sx={{ display: "flex", gap: { xs: 6, md: 10, lg: 14 } }}
+          >
             {PARTNERS.map((partner, i) => (
               <Box
                 key={`${loopIndex}-${i}`}
@@ -65,13 +68,7 @@ export default function Partners() {
                     height: { xs: 70, sm: 90, md: 110 },
                     width: "auto",
                     mx: "auto",
-                    filter: "grayscale(100%) brightness(0.85)",
-                    transition: "all 0.4s ease",
                     borderRadius: 2,
-                    "&:hover": {
-                      filter: "grayscale(0%) brightness(1.05)",
-                      transform: "scale(1.1) rotate(2deg)",
-                    },
                   }}
                 />
 
@@ -82,8 +79,6 @@ export default function Partners() {
                     mt: 1,
                     fontWeight: 600,
                     color: "#cbd5e1",
-                    transition: "color 0.3s ease",
-                    "&:hover": { color: "#38bdf8" },
                   }}
                 >
                   {partner.company}
