@@ -1,5 +1,6 @@
 @import "tailwindcss";
 
+<<<<<<< HEAD
 #root {
   max-width: 1280px;
   margin: 0 auto;
@@ -41,4 +42,13 @@
 
 .read-the-docs {
   color: #888;
+=======
+/* Full-width layout reset — overrides Vite's default #root constraints */
+#root {
+  max-width: 100%;
+  margin: 0;
+  padding: 0;
+  text-align: left;
+  width: 100%;
+>>>>>>> 08d9a356 (revised code with changes and portfolio)
 }

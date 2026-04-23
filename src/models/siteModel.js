@@ -14,12 +14,22 @@ export const BRAND = {
 };
 
 export const NAV_LINKS = [
+<<<<<<< HEAD
   { id: "home", label: "Home" },
   { id: "services", label: "Services" },
   { id: "about", label: "About" },
   { id: "gallery", label: "Our Work" },
   { id: "partners", label: "Partners" },
   { id: "contact", label: "Contact" },
+=======
+  { id: "home", label: "Home", type: "hash" },
+  { id: "services", label: "Services", type: "hash" },
+  { id: "about", label: "About", type: "hash" },
+  { id: "gallery", label: "Our Work", type: "hash" },
+  { id: "partners", label: "Partners", type: "hash" },
+  { id: "contact", label: "Contact", type: "hash" },
+  { id: "portfolio", label: "Portfolio", type: "page", href: "/portfolio" },
+>>>>>>> 08d9a356 (revised code with changes and portfolio)
 ];
 
 export const SERVICES = [
@@ -218,4 +228,75 @@ export const GALLERY = [
     image: "/images/Logo.jpg",
     year: 2022
   }
+<<<<<<< HEAD
 ];
+=======
+];
+export const PORTFOLIO_CATEGORIES = [
+  "All",
+  "Electrical",
+  "Lighting",
+  "Renovation",
+  "Testing",
+  "Consultation",
+];
+
+export const PORTFOLIO_ITEMS = [
+  {
+    id: 1,
+    title: "Merchandise Design",
+    category: "Design",
+    image: "/images/portfolio1.jpeg",
+    description: "Professionally designed and printed branded merchandise collection for WISETRIC MERCHANTS, including t-shirts, caps, and tote bags.",
+  },
+  {
+    id: 2,
+    title: "Interior Renovation",
+    category: "Renovation",
+    image: "/images/interior.jpg",
+    description: "Complete interior renovation with integrated smart lighting controls and neat cable management.",
+  },
+  {
+    id: 3,
+    title: "Event Lighting Setup",
+    category: "Lighting",
+    image: "/images/portfolio3.jpeg",
+    description: "Full event lighting rig and power distribution setup for a major concert in Nairobi.",
+  },
+  {
+    id: 4,
+    title: "Electrical Consultation",
+    category: "Consultation",
+    image: "/images/portfolio4.jpeg",
+    description: "Load analysis, compliance audit, and system design for a corporate office complex.",
+  },
+  {
+    id: 5,
+    title: "Custom Lighting Design",
+    category: "Lighting",
+    image: "/images/portfolio5.jpeg",
+    description: "Bespoke architectural lighting for a luxury residential development in Karen.",
+  },
+  {
+    id: 6,
+    title: "Specialist Installation",
+    category: "Electrical",
+    image: "/images/portfolio6.jpeg",
+    description: "On-site specialist electrical installation and repair by our certified team.",
+  },
+  {
+    id: 7,
+    title: "System Testing & Commissioning",
+    category: "Testing",
+    image: "/images/portfolio7.jpeg",
+    description: "Thorough commissioning, insulation, and continuity testing with detailed handover documentation.",
+  },
+  {
+    id: 8,
+    title: "Power Distribution",
+    category: "Electrical",
+    image: "/images/portfolio8.jpeg",
+    description: "Industrial-grade power distribution system installed for a large manufacturing facility.",
+  },
+];
+>>>>>>> 08d9a356 (revised code with changes and portfolio)

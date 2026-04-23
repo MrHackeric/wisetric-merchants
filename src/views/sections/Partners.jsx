@@ -38,7 +38,11 @@ export default function Partners() {
           width: "max-content",
         }}
         component={motion.div}
+<<<<<<< HEAD
         animate={{ x: ["-50%", "0%"] }} // move left to right
+=======
+        animate={{ x: ["0%", "-50%"] }} // move right to left (seamless loop)
+>>>>>>> 08d9a356 (revised code with changes and portfolio)
         transition={{
           repeat: Infinity,
           duration: 60, // slow speed

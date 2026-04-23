@@ -286,6 +286,10 @@ export default function Gallery() {
                     overflow: "hidden",
                     boxShadow: "0 24px 60px rgba(0,0,0,0.35)",
                     border: "1px solid rgba(255,255,255,0.08)",
+<<<<<<< HEAD
+=======
+                    position: "relative", // needed for absolute-positioned label badge
+>>>>>>> 08d9a356 (revised code with changes and portfolio)
                   }}
                 >
                   <video
