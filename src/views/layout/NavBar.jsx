@@ -13,23 +13,15 @@ import {
   ListItem,
   ListItemButton,
   ListItemText,
-<<<<<<< HEAD
-  Slide,
-=======
->>>>>>> 08d9a356 (revised code with changes and portfolio)
   useMediaQuery,
   useTheme,
 } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import CloseIcon from "@mui/icons-material/Close";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
-<<<<<<< HEAD
-import { motion, AnimatePresence } from "framer-motion";
-=======
 import WorkspacesIcon from "@mui/icons-material/Workspaces";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link, useLocation } from "react-router-dom";
->>>>>>> 08d9a356 (revised code with changes and portfolio)
 
 import { ORANGE, NAVY } from "../../theme";
 import { BRAND, NAV_LINKS } from "../../models/siteModel";
@@ -38,44 +30,6 @@ import useNavController from "../../controllers/useNavController";
 // LOGO (use from public/images or import from src/assets)
 const logoSrc = "/images/Logo.jpg";
 
-<<<<<<< HEAD
-// Reusable Nav Link (desktop)
-const NavButton = ({ to, label, isActive }) => (
-  <motion.div whileHover={{ y: -3 }} whileTap={{ scale: 0.95 }}>
-    <Box
-      className="px-2"
-      sx={{ display: "flex", flexDirection: "column", alignItems: "center" }}
-    >
-      <Button
-        href={`#${to}`}
-        sx={{
-          color: isActive ? ORANGE : "white",
-          fontWeight: 700,
-          px: 1.5,
-          textTransform: "none",
-          fontSize: { xs: 14, md: 15 },
-          "&:hover": { color: ORANGE, background: "transparent" },
-        }}
-      >
-        {label}
-      </Button>
-      {isActive && (
-        <motion.span
-          layoutId="navUnderline"
-          style={{
-            display: "block",
-            height: 3,
-            width: "70%",
-            background: ORANGE,
-            borderRadius: 4,
-            marginTop: 4,
-          }}
-        />
-      )}
-    </Box>
-  </motion.div>
-);
-=======
 // Reusable Nav Link (desktop) — supports hash links and router page links
 const NavButton = ({ link, isActive }) => {
   const isPage = link.type === "page";
@@ -117,19 +71,12 @@ const NavButton = ({ link, isActive }) => {
     </motion.div>
   );
 };
->>>>>>> 08d9a356 (revised code with changes and portfolio)
 
 
 export default function NavBar() {
   const { open, toggle, close } = useNavController();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
-<<<<<<< HEAD
-  const [activeLink, setActiveLink] = React.useState("");
-
-  // Track active link based on scroll position
-  React.useEffect(() => {
-=======
   const location = useLocation();
   const isPortfolioPage = location.pathname === "/portfolio";
   const [activeLink, setActiveLink] = React.useState("");
@@ -144,17 +91,12 @@ export default function NavBar() {
   // Track active hash section on home page
   React.useEffect(() => {
     if (isPortfolioPage) return;
->>>>>>> 08d9a356 (revised code with changes and portfolio)
     let ticking = false;
     const handleScroll = () => {
       if (!ticking) {
         window.requestAnimationFrame(() => {
-<<<<<<< HEAD
-          const sections = NAV_LINKS.map(link => document.getElementById(link.id));
-=======
           const hashLinks = NAV_LINKS.filter((l) => l.type === "hash");
           const sections = hashLinks.map((link) => document.getElementById(link.id));
->>>>>>> 08d9a356 (revised code with changes and portfolio)
           const scrollPosition = window.scrollY + 120;
           for (const section of sections) {
             if (!section) continue;
@@ -172,11 +114,7 @@ export default function NavBar() {
     };
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
-<<<<<<< HEAD
-  }, []);
-=======
   }, [isPortfolioPage]);
->>>>>>> 08d9a356 (revised code with changes and portfolio)
 
   return (
     <>
@@ -270,16 +208,9 @@ export default function NavBar() {
               transition={{ delay: 0.2 }}
             >
               {NAV_LINKS.map((n) => (
-<<<<<<< HEAD
-                <NavButton 
-                  key={n.id} 
-                  to={n.id} 
-                  label={n.label} 
-=======
                 <NavButton
                   key={n.id}
                   link={n}
->>>>>>> 08d9a356 (revised code with changes and portfolio)
                   isActive={activeLink === n.id}
                 />
               ))}
@@ -425,14 +356,9 @@ export default function NavBar() {
                 >
                   <ListItem disablePadding>
                     <ListItemButton
-<<<<<<< HEAD
-                      component="a"
-                      href={`#${n.id}`}
-=======
                       {...(n.type === "page"
                         ? { component: Link, to: n.href }
                         : { component: "a", href: `#${n.id}` })}
->>>>>>> 08d9a356 (revised code with changes and portfolio)
                       onClick={close}
                       selected={activeLink === n.id}
                       sx={{

@@ -14,14 +14,6 @@ export const BRAND = {
 };
 
 export const NAV_LINKS = [
-<<<<<<< HEAD
-  { id: "home", label: "Home" },
-  { id: "services", label: "Services" },
-  { id: "about", label: "About" },
-  { id: "gallery", label: "Our Work" },
-  { id: "partners", label: "Partners" },
-  { id: "contact", label: "Contact" },
-=======
   { id: "home", label: "Home", type: "hash" },
   { id: "services", label: "Services", type: "hash" },
   { id: "about", label: "About", type: "hash" },
@@ -29,7 +21,6 @@ export const NAV_LINKS = [
   { id: "partners", label: "Partners", type: "hash" },
   { id: "contact", label: "Contact", type: "hash" },
   { id: "portfolio", label: "Portfolio", type: "page", href: "/portfolio" },
->>>>>>> 08d9a356 (revised code with changes and portfolio)
 ];
 
 export const SERVICES = [
@@ -228,9 +219,6 @@ export const GALLERY = [
     image: "/images/Logo.jpg",
     year: 2022
   }
-<<<<<<< HEAD
-];
-=======
 ];
 export const PORTFOLIO_CATEGORIES = [
   "All",
@@ -299,4 +287,3 @@ export const PORTFOLIO_ITEMS = [
     description: "Industrial-grade power distribution system installed for a large manufacturing facility.",
   },
 ];
->>>>>>> 08d9a356 (revised code with changes and portfolio)
