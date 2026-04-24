@@ -373,12 +373,7 @@ export default function Hero() {
                     boxShadow: "0 20px 50px rgba(0,0,0,0.35)",
                     border: "1px solid rgba(255,255,255,0.1)",
                     backdropFilter: "blur(6px)",
-<<<<<<< HEAD
-                    // sticky so it keeps visible while you scroll within hero height
-                    positionSticky: "sticky",
-=======
                     position: "sticky",
->>>>>>> 08d9a356 (revised code with changes and portfolio)
                     top: { xs: 20, lg: 40 },
                   }}
                   component={motion.div}
