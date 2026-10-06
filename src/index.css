@@ -1,0 +1,65 @@
+@import "tailwindcss";
+
+/* Brand colours as Tailwind tokens (bg-navy, text-brand, ...) — replaces the old tailwind.config.cjs, which Tailwind v4 ignores */
+@theme {
+  --color-navy: #1e2642;
+  --color-brand: #f7a31a;
+}
+
+/* Sticky navbar height — used for scroll offsets and sticky elements below the navbar.
+   Total height of the <header> in NavBar.jsx (Toolbar minHeight + 1px border). md breakpoint = 900px. */
+:root {
+  --nav-h: 64px;
+}
+@media (min-width: 900px) {
+  :root {
+    --nav-h: 80px;
+  }
+}
+
+html {
+  /* Smooth in-page scrolling, with an offset so anchored sections aren't hidden under the sticky navbar */
+  scroll-behavior: smooth;
+  scroll-padding-top: var(--nav-h);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+/* Full-width canvas */
+html,
+body {
+  min-height: 100%;
+}
+#root {
+  min-height: 100vh;
+  width: 100%;
+  max-width: 100%;
+  /* Slide-in animations start a few px off-screen; clip that so the page never gets wider than the
+     screen. `clip` (unlike `hidden`) doesn't create a scroll container, so position: sticky keeps working. */
+  overflow-x: clip;
+  margin: 0;
+  padding: 0;
+  text-align: left;
+}
+
+body {
+  margin: 0;
+  background: linear-gradient(180deg, rgba(8, 12, 24, 0.98), rgba(8, 12, 24, 0.92));
+  color: #fff;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+a {
+  text-decoration: none;
+}
+
+@keyframes pulse {
+  0% { opacity: 0.8; }
+  50% { opacity: 1; }
+  100% { opacity: 0.8; }
+}
