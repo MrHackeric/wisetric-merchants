@@ -1,0 +1,91 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: wisetric-merchants
+  labels:
+    app.kubernetes.io/name: wisetric-merchants
+    app.kubernetes.io/part-of: wisetric-merchants
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: wisetric-merchants
+  namespace: wisetric-merchants
+  labels:
+    app: wisetric-merchants
+    app.kubernetes.io/name: wisetric-merchants
+    app.kubernetes.io/component: frontend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: wisetric-merchants
+  template:
+    metadata:
+      labels:
+        app: wisetric-merchants
+        app.kubernetes.io/name: wisetric-merchants
+    spec:
+      containers:
+        - name: wisetric-merchants
+          image: mrhackeric/wisetric-merchants:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 80
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              cpu: 250m
+              memory: 128Mi
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 80
+            initialDelaySeconds: 10
+            periodSeconds: 15
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: 80
+            initialDelaySeconds: 5
+            periodSeconds: 10
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: wisetric-merchants
+  namespace: wisetric-merchants
+  labels:
+    app: wisetric-merchants
+spec:
+  type: ClusterIP
+  selector:
+    app: wisetric-merchants
+  ports:
+    - name: http
+      port: 80
+      targetPort: 80
+      protocol: TCP
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: wisetric-merchants-ingress
+  namespace: wisetric-merchants
+  annotations:
+    kubernetes.io/ingress.class: nginx
+spec:
+  rules:
+    - http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: wisetric-merchants
+                port:
+                  number: 80

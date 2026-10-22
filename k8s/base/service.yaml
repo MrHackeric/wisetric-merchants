@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: wisetric-merchants
+  namespace: wisetric-merchants
+  labels:
+    app: wisetric-merchants
+    app.kubernetes.io/name: wisetric-merchants
+    app.kubernetes.io/component: frontend
+spec:
+  type: ClusterIP
+  selector:
+    app: wisetric-merchants
+  ports:
+    - name: http
+      port: 80
+      targetPort: 80
+      protocol: TCP

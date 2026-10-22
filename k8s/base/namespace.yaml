@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: wisetric-merchants
+  labels:
+    app.kubernetes.io/name: wisetric-merchants
+    app.kubernetes.io/part-of: wisetric-merchants
