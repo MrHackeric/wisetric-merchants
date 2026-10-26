@@ -59,21 +59,35 @@ pipeline {
                     echo "=========================================================="
                 }
                 sh '''
-                    echo "Node Version: $(node -v || true)"
-                    echo "NPM Version: $(npm -v || true)"
                     echo "Docker Version: $(docker --version || true)"
                 '''
             }
         }
 
         stage('Install Dependencies') {
+            agent {
+                docker {
+                    image 'node:20-alpine'
+                    reuseNode true
+                }
+            }
             steps {
                 echo 'Installing Node.js dependencies using npm ci...'
-                sh 'npm ci'
+                sh '''
+                    echo "Node Version: $(node -v)"
+                    echo "NPM Version: $(npm -v)"
+                    npm ci
+                '''
             }
         }
 
         stage('Lint & Validate') {
+            agent {
+                docker {
+                    image 'node:20-alpine'
+                    reuseNode true
+                }
+            }
             steps {
                 echo 'Running ESLint checks...'
                 sh 'npm run lint'
@@ -81,6 +95,12 @@ pipeline {
         }
 
         stage('Build Application') {
+            agent {
+                docker {
+                    image 'node:20-alpine'
+                    reuseNode true
+                }
+            }
             steps {
                 echo 'Building Vite production bundle...'
                 sh 'npm run build'
