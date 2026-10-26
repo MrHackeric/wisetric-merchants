@@ -6,7 +6,6 @@ metadata:
   labels:
     app: wisetric-merchants
     app.kubernetes.io/name: wisetric-merchants
-    app.kubernetes.io/instance: wisetric-merchants
     app.kubernetes.io/component: frontend
 spec:
   replicas: 2

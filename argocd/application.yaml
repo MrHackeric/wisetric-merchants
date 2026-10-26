@@ -11,7 +11,7 @@ spec:
   project: default
   source:
     repoURL: https://github.com/MrHackeric/wisetric-merchants.git
-    targetRevision: HEAD
+    targetRevision: main
     path: k8s/base
   destination:
     server: https://kubernetes.default.svc
