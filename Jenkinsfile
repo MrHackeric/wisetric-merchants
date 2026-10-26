@@ -69,15 +69,35 @@ pipeline {
                 docker {
                     image 'node:20-alpine'
                     reuseNode true
+                    args '-e HOME=/tmp -e npm_config_cache=/tmp/.npm'
                 }
             }
             steps {
                 echo 'Installing Node.js dependencies using npm ci...'
-                sh '''
-                    echo "Node Version: $(node -v)"
-                    echo "NPM Version: $(npm -v)"
-                    npm ci
-                '''
+                script {
+                    try {
+                        sh '''
+                            export HOME=/tmp
+                            export npm_config_cache=/tmp/.npm
+                            echo "Node Version: $(node -v)"
+                            echo "NPM Version: $(npm -v)"
+                            echo "NPM Cache Directory: $(npm config get cache)"
+                            npm ci --cache /tmp/.npm
+                        '''
+                    } catch (Exception e) {
+                        echo '=========================================================='
+                        echo "ERROR: 'npm ci' failed in stage 'Install Dependencies'!"
+                        echo "Error message: ${e.message}"
+                        sh '''
+                            if [ -d /tmp/.npm/_logs ]; then
+                                echo "--- Recent NPM Logs ---"
+                                tail -n 100 /tmp/.npm/_logs/*.log || true
+                            fi
+                        '''
+                        echo '=========================================================='
+                        throw e
+                    }
+                }
             }
         }
 
@@ -86,11 +106,27 @@ pipeline {
                 docker {
                     image 'node:20-alpine'
                     reuseNode true
+                    args '-e HOME=/tmp -e npm_config_cache=/tmp/.npm'
                 }
             }
             steps {
                 echo 'Running ESLint checks...'
-                sh 'npm run lint'
+                script {
+                    try {
+                        sh '''
+                            export HOME=/tmp
+                            export npm_config_cache=/tmp/.npm
+                            npm run lint
+                        '''
+                    } catch (Exception e) {
+                        echo '=========================================================='
+                        echo "ERROR: Linting checks failed in stage 'Lint & Validate'!"
+                        echo "Error details: ${e.message}"
+                        echo 'Run "npm run lint" locally to inspect and fix ESLint warnings/errors.'
+                        echo '=========================================================='
+                        throw e
+                    }
+                }
             }
         }
 
@@ -99,50 +135,87 @@ pipeline {
                 docker {
                     image 'node:20-alpine'
                     reuseNode true
+                    args '-e HOME=/tmp -e npm_config_cache=/tmp/.npm'
                 }
             }
             steps {
                 echo 'Building Vite production bundle...'
-                sh 'npm run build'
+                script {
+                    try {
+                        sh '''
+                            export HOME=/tmp
+                            export npm_config_cache=/tmp/.npm
+                            npm run build
+                        '''
+                    } catch (Exception e) {
+                        echo '=========================================================='
+                        echo "ERROR: Vite production bundle failed in stage 'Build Application'!"
+                        echo "Error details: ${e.message}"
+                        echo 'Run "npm run build" locally to diagnose compilation issues.'
+                        echo '=========================================================='
+                        throw e
+                    }
+                }
             }
         }
 
         stage('Build Docker Image') {
             steps {
                 echo "Building Docker image: ${params.IMAGE_REPO}:${env.IMAGE_TAG} and latest..."
-                sh """
-                    docker build \
-                        -t ${params.IMAGE_REPO}:${env.IMAGE_TAG} \
-                        -t ${params.IMAGE_REPO}:latest \
-                        .
-                """
+                script {
+                    try {
+                        sh """
+                            docker build \
+                                -t ${params.IMAGE_REPO}:${env.IMAGE_TAG} \
+                                -t ${params.IMAGE_REPO}:latest \
+                                .
+                        """
+                    } catch (Exception e) {
+                        echo '=========================================================='
+                        echo "ERROR: Docker build failed for ${params.IMAGE_REPO}:${env.IMAGE_TAG}!"
+                        echo "Error details: ${e.message}"
+                        echo '=========================================================='
+                        throw e
+                    }
+                }
             }
         }
 
         stage('Container Smoke Test') {
             steps {
                 echo 'Running container healthcheck smoke test...'
-                sh """
-                    CONTAINER_ID=\$(docker run -d -p 8888:80 ${params.IMAGE_REPO}:${env.IMAGE_TAG})
-                    echo "Started test container: \${CONTAINER_ID}"
+                script {
+                    try {
+                        sh """
+                            CONTAINER_ID=\$(docker run -d -p 8888:80 ${params.IMAGE_REPO}:${env.IMAGE_TAG})
+                            echo "Started test container: \${CONTAINER_ID}"
 
-                    # Wait for container startup
-                    sleep 5
+                            # Wait for container startup
+                            sleep 5
 
-                    # Check HTTP status of health endpoint
-                    STATUS=\$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8888/healthz || true)
-                    echo "Healthcheck HTTP Status: \${STATUS}"
+                            # Check HTTP status of health endpoint
+                            STATUS=\$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8888/healthz || true)
+                            echo "Healthcheck HTTP Status: \${STATUS}"
 
-                    # Clean up test container
-                    docker stop \${CONTAINER_ID} >/dev/null || true
-                    docker rm \${CONTAINER_ID} >/dev/null || true
+                            # Clean up test container
+                            docker stop \${CONTAINER_ID} >/dev/null || true
+                            docker rm \${CONTAINER_ID} >/dev/null || true
 
-                    if [ "\${STATUS}" != "200" ]; then
-                        echo "Smoke test failed! Expected HTTP 200 from /healthz, got \${STATUS}"
-                        exit 1
-                    fi
-                    echo "Container smoke test passed!"
-                """
+                            if [ "\${STATUS}" != "200" ]; then
+                                echo "Smoke test failed! Expected HTTP 200 from /healthz, got \${STATUS}"
+                                exit 1
+                            fi
+                            echo "Container smoke test passed!"
+                        """
+                    } catch (Exception e) {
+                        echo '=========================================================='
+                        echo "ERROR: Container smoke test failed for ${params.IMAGE_REPO}:${env.IMAGE_TAG}!"
+                        echo "Error details: ${e.message}"
+                        echo 'Check that nginx is responding on /healthz and returning HTTP 200.'
+                        echo '=========================================================='
+                        throw e
+                    }
+                }
             }
         }
 
@@ -225,14 +298,37 @@ pipeline {
 
     post {
         always {
-            echo 'Build completed. Cleaning up workspace...'
+            echo '=========================================================='
+            echo "Build completed for ${env.APP_NAME} (Build #${env.BUILD_NUMBER})"
+            echo 'Cleaning up workspace...'
             cleanWs notFailBuild: true
+            echo 'Workspace cleanup completed.'
+            echo '=========================================================='
         }
         success {
-            echo "Pipeline succeeded! Wisetric Merchants image ${params.IMAGE_REPO}:${env.IMAGE_TAG} ready."
+            echo '=========================================================='
+            echo "✓ Pipeline succeeded! Wisetric Merchants image ready."
+            echo "Repository:  ${params.IMAGE_REPO}"
+            echo "Image Tag:   ${params.IMAGE_REPO}:${env.IMAGE_TAG}"
+            echo "Commit:      ${env.GIT_COMMIT ?: 'local'}"
+            echo "Branch:      ${env.GIT_BRANCH ?: 'unknown'}"
+            echo "Build:       #${env.BUILD_NUMBER}"
+            echo '=========================================================='
         }
         failure {
-            echo 'Pipeline failed! Check the console output for troubleshooting details.'
+            echo '=========================================================='
+            echo "✗ Pipeline failed on Build #${env.BUILD_NUMBER}!"
+            echo "Application:  ${env.APP_NAME}"
+            echo "Target Image: ${params.IMAGE_REPO}:${env.IMAGE_TAG}"
+            echo "Commit:       ${env.GIT_COMMIT ?: 'local'}"
+            echo "Branch:       ${env.GIT_BRANCH ?: 'unknown'}"
+            echo 'Troubleshooting Guide:'
+            echo '  1. Review console logs above for the specific failed stage.'
+            echo '  2. If npm ci failed with permission/cache errors, verify /tmp/.npm permissions.'
+            echo '  3. If linting failed, run "npm run lint" locally to inspect issues.'
+            echo '  4. If Docker build/smoke test failed, test "docker build" locally.'
+            echo '  5. If image push failed, verify credentials in Jenkins.'
+            echo '=========================================================='
         }
     }
 }
