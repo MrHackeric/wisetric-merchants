@@ -28,7 +28,7 @@ function PageLoader() {
   );
 }
 
-// Navbar + footer live here once, so they persist (and don't re-animate) between pages
+// Navbar + footer live here once, so they persist between pages
 function SiteLayout() {
   return (
     <Box sx={{ minHeight: "100vh", width: "100%" }}>
@@ -39,9 +39,10 @@ function SiteLayout() {
           inset: 0,
           zIndex: -1,
           pointerEvents: "none",
+          transform: "translateZ(0)", // Promotes to compositor layer to avoid scroll repaints
           background: `
-            radial-gradient(1200px 600px at 15% 10%, rgba(247,163,26,0.12), transparent 60%),
-            radial-gradient(1000px 500px at 85% 0%, rgba(255,255,255,0.06), transparent 50%)
+            radial-gradient(1200px 600px at 15% 10%, rgba(247,163,26,0.1), transparent 60%),
+            radial-gradient(1000px 500px at 85% 0%, rgba(255,255,255,0.04), transparent 50%)
           `,
         }}
       />
@@ -78,7 +79,6 @@ export default function App() {
         <Route element={<SiteLayout />}>
           <Route path="/" element={<HomePage />} />
           <Route path="/portfolio" element={<Portfolio />} />
-          {/* Unknown URLs used to render a blank page — send them home */}
           <Route path="*" element={<Navigate to="/" replace />} />
         </Route>
       </Routes>

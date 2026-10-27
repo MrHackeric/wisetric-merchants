@@ -1,13 +1,12 @@
 @import "tailwindcss";
 
-/* Brand colours as Tailwind tokens (bg-navy, text-brand, ...) — replaces the old tailwind.config.cjs, which Tailwind v4 ignores */
+/* Brand colours as Tailwind tokens (bg-navy, text-brand, ...) */
 @theme {
   --color-navy: #1e2642;
   --color-brand: #f7a31a;
 }
 
-/* Sticky navbar height — used for scroll offsets and sticky elements below the navbar.
-   Total height of the <header> in NavBar.jsx (Toolbar minHeight + 1px border). md breakpoint = 900px. */
+/* Sticky navbar height — used for scroll offsets and sticky elements below the navbar */
 :root {
   --nav-h: 64px;
 }
@@ -23,23 +22,16 @@ html {
   scroll-padding-top: var(--nav-h);
 }
 
-@media (prefers-reduced-motion: reduce) {
-  html {
-    scroll-behavior: auto;
-  }
-}
-
 /* Full-width canvas */
 html,
 body {
   min-height: 100%;
 }
+
 #root {
   min-height: 100vh;
   width: 100%;
   max-width: 100%;
-  /* Slide-in animations start a few px off-screen; clip that so the page never gets wider than the
-     screen. `clip` (unlike `hidden`) doesn't create a scroll container, so position: sticky keeps working. */
   overflow-x: clip;
   margin: 0;
   padding: 0;
@@ -58,8 +50,131 @@ a {
   text-decoration: none;
 }
 
-@keyframes pulse {
-  0% { opacity: 0.8; }
-  50% { opacity: 1; }
-  100% { opacity: 0.8; }
+/* ─────────────────────────────────────────────────────────────
+   PERFORMANT CSS-ONLY HARDWARE-ACCELERATED ANIMATIONS
+   Runs directly on the browser compositor thread (GPU) with 0ms JS runtime cost
+   ───────────────────────────────────────────────────────────── */
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 18px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translate3d(0, -18px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes marquee {
+  0% {
+    transform: translate3d(0, 0, 0);
+  }
+  100% {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
+@keyframes pulseGlow {
+  0%, 100% {
+    opacity: 0.7;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.03);
+  }
+}
+
+/* Scroll reveal utility */
+.reveal {
+  opacity: 0;
+  transform: translate3d(0, 20px, 0);
+  transition: opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1), transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform;
+}
+
+.reveal.is-visible {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+}
+
+/* Hover lift utility */
+.hover-lift {
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s ease;
+  will-change: transform;
+}
+.hover-lift:hover {
+  transform: translate3d(0, -4px, 0);
+}
+
+/* Marquee track */
+.marquee-track {
+  display: flex;
+  width: max-content;
+  animation: marquee 35s linear infinite;
+  will-change: transform;
+}
+
+.marquee-track:hover {
+  animation-play-state: paused;
+}
+
+/* Hero background slides */
+.hero-slide {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 0.8s ease-in-out;
+  background-size: cover;
+  background-position: center;
+  pointer-events: none;
+}
+
+.hero-slide.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Reduced motion accessibility */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .reveal {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+  .marquee-track {
+    animation: none !important;
+    overflow-x: auto;
+  }
 }

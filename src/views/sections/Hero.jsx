@@ -1,8 +1,5 @@
-import { useEffect, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Box, Typography, Stack, Button, Chip } from "@mui/material";
-import { motion } from "framer-motion";
-import { Swiper, SwiperSlide } from "swiper/react";
-import { Pagination, Autoplay } from "swiper/modules";
 import { Link } from "react-router-dom";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import ArrowOutwardIcon from "@mui/icons-material/ArrowOutward";
@@ -12,10 +9,7 @@ import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import BoltIcon from "@mui/icons-material/Bolt";
 import { ORANGE, NAVY } from "../../theme";
 import { QUOTE_TARGET } from "../../models/siteModel";
-import "swiper/css";
-import "swiper/css/pagination";
 
-// Background images
 const SERVICES_TARGET = { pathname: "/", hash: "#services" };
 
 const heroImages = [
@@ -35,97 +29,103 @@ const Badge = ({ text, icon }) => (
       border: "1px solid rgba(255,255,255,0.1)",
       fontWeight: 700,
       px: 1,
+      transition: "transform 0.2s ease, background-color 0.2s ease",
       "& .MuiChip-icon": { color: ORANGE, fontSize: "1rem" },
+      "&:hover": {
+        transform: "translateY(-2px)",
+        bgcolor: "rgba(255,255,255,0.1)",
+      },
     }}
-    component={motion.div}
-    whileHover={{ y: -2 }}
   />
 );
 
 export default function Hero() {
+  const [currentSlide, setCurrentSlide] = useState(0);
   const videoRef = useRef(null);
 
-  // Nudge the video to keep playing (muted autoplay should be allowed)
+  // Auto-advance hero background slides with pure lightweight interval
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % heroImages.length);
+    }, 5000);
+    return () => clearInterval(timer);
+  }, []);
+
+  // Efficient video playback: only play when in viewport, defer loading to avoid blocking page load
   useEffect(() => {
     const v = videoRef.current;
     if (!v) return;
-    const tryPlay = () => {
-      const p = v.play();
-      if (p && typeof p.then === "function") {
-        p.catch(() => {
-          // If autoplay is blocked, keep trying on interaction
-          const onInteract = () => {
-            window.removeEventListener("click", onInteract);
-            window.removeEventListener("touchstart", onInteract);
-            v.play().catch(() => {});
-          };
-          window.addEventListener("click", onInteract, { once: true });
-          window.addEventListener("touchstart", onInteract, { once: true });
-        });
-      }
-    };
-    tryPlay();
-    // Resume if it ever gets paused by browser heuristics
-    const onVisibility = () => {
-      if (!document.hidden) tryPlay();
-    };
-    document.addEventListener("visibilitychange", onVisibility);
-    return () => document.removeEventListener("visibilitychange", onVisibility);
+
+    let isObserved = false;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          isObserved = true;
+          v.play().catch(() => {});
+        } else if (isObserved) {
+          v.pause();
+        }
+      },
+      { threshold: 0.2 }
+    );
+
+    observer.observe(v);
+    return () => observer.disconnect();
   }, []);
 
   return (
     <Box sx={{ position: "relative", overflow: "hidden" }}>
-      {/* Background Slider */}
-      <Box
-        sx={{
-          position: "absolute",
-          inset: 0,
-          zIndex: 0,
-          "& .swiper, & .swiper-slide": { height: "100%" },
-          "& .swiper-pagination-bullet": {
-            bgcolor: "white",
-            opacity: 0.5,
-            width: 10,
-            height: 10,
-            transition: "all 0.3s",
-          },
-          "& .swiper-pagination-bullet-active": {
-            bgcolor: ORANGE,
-            opacity: 1,
-            width: 30,
-          },
-        }}
-      >
-        <Swiper
-          modules={[Pagination, Autoplay]}
-          spaceBetween={0}
-          slidesPerView={1}
-          loop
-          autoplay={{ delay: 5000, disableOnInteraction: false }}
-          pagination={{ clickable: true }}
-          speed={1000}
+      {/* Background Slideshow — CSS Hardware-Accelerated Crossfade (Zero JS Carousel Overhead) */}
+      <Box sx={{ position: "absolute", inset: 0, zIndex: 0 }}>
+        {heroImages.map((img, index) => (
+          <Box
+            key={img}
+            className={`hero-slide ${index === currentSlide ? "active" : ""}`}
+            sx={{
+              backgroundImage: `url(${img})`,
+              "&::after": {
+                content: '""',
+                position: "absolute",
+                inset: 0,
+                background:
+                  "linear-gradient(to right, rgba(30,38,66,0.92) 0%, rgba(30,38,66,0.65) 100%)",
+              },
+            }}
+          />
+        ))}
+
+        {/* Lightweight Slide Indicators */}
+        <Stack
+          direction="row"
+          spacing={1}
+          sx={{
+            position: "absolute",
+            bottom: 24,
+            left: "50%",
+            transform: "translateX(-50%)",
+            zIndex: 2,
+          }}
         >
-          {heroImages.map((img, index) => (
-            <SwiperSlide key={index}>
-              <Box
-                sx={{
-                  height: "100%",
-                  backgroundImage: `url(${img})`,
-                  backgroundSize: "cover",
-                  backgroundPosition: "center",
-                  position: "relative",
-                  "&::after": {
-                    content: '""',
-                    position: "absolute",
-                    inset: 0,
-                    background:
-                      "linear-gradient(to right, rgba(30,38,66,0.9) 0%, rgba(30,38,66,0.6) 100%)",
-                  },
-                }}
-              />
-            </SwiperSlide>
+          {heroImages.map((_, i) => (
+            <Box
+              key={i}
+              component="button"
+              onClick={() => setCurrentSlide(i)}
+              aria-label={`Go to slide ${i + 1}`}
+              sx={{
+                width: i === currentSlide ? 28 : 10,
+                height: 10,
+                borderRadius: 5,
+                bgcolor: i === currentSlide ? ORANGE : "rgba(255,255,255,0.5)",
+                border: "none",
+                cursor: "pointer",
+                p: 0,
+                transition: "all 0.3s ease",
+                "&:hover": { bgcolor: ORANGE },
+              }}
+            />
           ))}
-        </Swiper>
+        </Stack>
       </Box>
 
       {/* Foreground Content */}
@@ -157,11 +157,7 @@ export default function Hero() {
             {/* LEFT: Text Column */}
             <Box sx={{ flex: 1, maxWidth: { xs: "100%", lg: "58%" } }}>
               {/* Tagline */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.2 }}
-              >
+              <Box sx={{ animation: "fadeInUp 0.6s ease-out forwards" }}>
                 <Chip
                   label="CONSULTATION | FILM & EVENT LIGHTING | RENOVATION & SUPPLY"
                   sx={{
@@ -178,14 +174,10 @@ export default function Hero() {
                     "& .MuiChip-label": { whiteSpace: "normal", py: 0.5, px: 0.5 },
                   }}
                 />
-              </motion.div>
+              </Box>
 
               {/* Heading */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.3 }}
-              >
+              <Box sx={{ animation: "fadeInUp 0.6s ease-out 0.1s forwards" }}>
                 <Typography
                   variant="h1"
                   sx={{
@@ -240,19 +232,15 @@ export default function Hero() {
                   </Box>{" "}
                   Source.
                 </Typography>
-              </motion.div>
+              </Box>
 
               {/* Description */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.4 }}
-              >
+              <Box sx={{ animation: "fadeInUp 0.6s ease-out 0.2s forwards" }}>
                 <Typography
                   sx={{
                     color: "#e2e8f0",
                     fontSize: { xs: "1.2rem", md: "1.5rem" },
-                    mb: 2,
+                    mb: 3,
                     maxWidth: 700,
                   }}
                 >
@@ -260,14 +248,10 @@ export default function Hero() {
                   consultation, event lighting, and custom material fabrication, providing reliable
                   solutions tailored to clients’ needs.
                 </Typography>
-              </motion.div>
+              </Box>
 
               {/* Buttons */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.5 }}
-              >
+              <Box sx={{ animation: "fadeInUp 0.6s ease-out 0.3s forwards" }}>
                 <Stack direction={{ xs: "column", sm: "row" }} spacing={2} sx={{ mb: 4 }}>
                   <Button
                     component={Link}
@@ -280,20 +264,19 @@ export default function Hero() {
                       px: 4,
                       py: 1.5,
                       borderRadius: "8px",
+                      transition: "transform 0.25s ease, background-color 0.2s ease, box-shadow 0.25s ease",
                       "&:hover": {
                         bgcolor: "#ffa51c",
                         transform: "translateY(-2px)",
                         boxShadow: `0 8px 20px ${ORANGE}40`,
+                        "& .arrow-icon": { transform: "translateX(4px)" },
                       },
-                      transition: "all 0.3s ease",
                     }}
                     endIcon={
-                      <motion.div
-                        animate={{ x: [0, 4, 0] }}
-                        transition={{ repeat: Infinity, duration: 2 }}
-                      >
-                        <ArrowForwardIcon />
-                      </motion.div>
+                      <ArrowForwardIcon
+                        className="arrow-icon"
+                        sx={{ transition: "transform 0.2s ease" }}
+                      />
                     }
                   >
                     Explore Services
@@ -309,27 +292,23 @@ export default function Hero() {
                       px: 4,
                       py: 1.5,
                       borderRadius: "8px",
+                      transition: "all 0.25s ease",
                       "&:hover": {
                         borderColor: ORANGE,
                         bgcolor: `${ORANGE}10`,
                         transform: "translateY(-2px)",
                         boxShadow: `0 8px 20px ${ORANGE}20`,
                       },
-                      transition: "all 0.3s ease",
                     }}
                     endIcon={<ArrowOutwardIcon sx={{ fontSize: "1rem" }} />}
                   >
                     Get a Quote
                   </Button>
                 </Stack>
-              </motion.div>
+              </Box>
 
               {/* Badges */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.6 }}
-              >
+              <Box sx={{ animation: "fadeInUp 0.6s ease-out 0.4s forwards" }}>
                 <Stack
                   direction="row"
                   sx={{
@@ -342,7 +321,7 @@ export default function Hero() {
                   <Badge text="24/7 Support" icon={<SupportAgentIcon />} />
                   <Badge text="On-time Delivery" icon={<CheckCircleIcon />} />
                 </Stack>
-              </motion.div>
+              </Box>
             </Box>
 
             {/* RIGHT: Video Column */}
@@ -353,112 +332,77 @@ export default function Hero() {
                 display: "flex",
                 alignItems: "center",
                 justifyContent: { xs: "center", lg: "flex-end" },
+                animation: "fadeInUp 0.6s ease-out 0.35s forwards",
               }}
             >
-              <motion.div
-                initial={{ opacity: 0, x: 40 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.6, delay: 0.5 }}
-                style={{ width: "100%" }}
+              <Box
+                sx={{
+                  position: "relative",
+                  width: "100%",
+                  maxWidth: { xs: 560, lg: 640 },
+                  aspectRatio: "16 / 9",
+                  borderRadius: 3,
+                  overflow: "hidden",
+                  boxShadow: "0 20px 50px rgba(0,0,0,0.35)",
+                  border: "1px solid rgba(255,255,255,0.1)",
+                  transition: "transform 0.3s ease, box-shadow 0.3s ease",
+                  "&:hover": {
+                    transform: "translateY(-4px)",
+                    boxShadow: `0 24px 60px rgba(0,0,0,0.45), 0 0 0 1px ${ORANGE}30`,
+                  },
+                }}
               >
+                <video
+                  ref={videoRef}
+                  src="/videos/flag.mp4"
+                  poster="/images/bottle.jpg"
+                  muted
+                  loop
+                  playsInline
+                  preload="none"
+                  style={{
+                    width: "100%",
+                    height: "100%",
+                    objectFit: "cover",
+                    display: "block",
+                  }}
+                />
+
+                {/* Top-right badge over video */}
                 <Box
                   sx={{
-                    position: "relative",
-                    width: "100%",
-                    maxWidth: { xs: 560, lg: 640 },
-                    aspectRatio: "16 / 9",
-                    borderRadius: 3,
-                    overflow: "hidden",
-                    boxShadow: "0 20px 50px rgba(0,0,0,0.35)",
-                    border: "1px solid rgba(255,255,255,0.1)",
-                    backdropFilter: "blur(6px)",
+                    position: "absolute",
+                    top: 12,
+                    right: 12,
+                    zIndex: 2,
+                    bgcolor: "rgba(0,0,0,0.6)",
+                    border: "1px solid rgba(255,255,255,0.15)",
+                    borderRadius: 2,
+                    px: 1.25,
+                    py: 0.5,
                   }}
-                  component={motion.div}
-                  animate={{ y: [0, -6, 0] }}
-                  transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
                 >
-                  {/* Soft gradient ring on hover */}
-                  <Box
-                    sx={{
-                      position: "absolute",
-                      inset: -2,
-                      borderRadius: 3,
-                      pointerEvents: "none",
-                      background:
-                        "conic-gradient(from 180deg at 50% 50%, transparent, transparent, rgba(247,163,26,0.35), transparent, transparent)",
-                      opacity: 0,
-                      transition: "opacity 0.4s ease",
-                      zIndex: 1,
-                    }}
-                    className="video-glow"
-                  />
-                  <Box
-                    sx={{
-                      width: "100%",
-                      height: "100%",
-                      position: "relative",
-                      "&:hover ~ .video-glow": { opacity: 1 },
-                    }}
-                  >
-                    <video
-                      ref={videoRef}
-                      src="/videos/flag.mp4"
-                      poster="/images/bottle.jpg"
-                      muted
-                      loop
-                      playsInline
-                      autoPlay
-                      preload="auto"
-                      style={{
-                        width: "100%",
-                        height: "100%",
-                        objectFit: "cover",
-                        display: "block",
+                  <Stack direction="row" spacing={1} alignItems="center">
+                    <Box
+                      sx={{
+                        width: 28,
+                        height: 28,
+                        bgcolor: `${ORANGE}22`,
+                        borderRadius: 1,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        flexShrink: 0,
                       }}
-                    />
-                  </Box>
-
-                  {/* Top-right badge over video */}
-                  <Box
-                    sx={{
-                      position: "absolute",
-                      top: 12,
-                      right: 12,
-                      zIndex: 2,
-                      bgcolor: "rgba(0,0,0,0.4)",
-                      border: "1px solid rgba(255,255,255,0.1)",
-                      borderRadius: 2,
-                      px: 1.25,
-                      py: 0.5,
-                      backdropFilter: "blur(6px)",
-                    }}
-                    component={motion.div}
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.9, duration: 0.5 }}
-                  >
-                    <Stack direction="row" spacing={1} alignItems="center">
-                      <Box
-                        sx={{
-                          width: 28,
-                          height: 28,
-                          bgcolor: `${ORANGE}22`,
-                          borderRadius: 1,
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          flexShrink: 0,
-                        }}
-                      >
-                        <BoltIcon sx={{ color: ORANGE, fontSize: 18 }} />
-                      </Box>
-                      <Typography sx={{ fontWeight: 800, fontSize: "0.9rem" }}>
-                        Safety-first Electricals
-                      </Typography>
-                    </Stack>
-                  </Box>
+                    >
+                      <BoltIcon sx={{ color: ORANGE, fontSize: 18 }} />
+                    </Box>
+                    <Typography sx={{ fontWeight: 800, fontSize: "0.9rem" }}>
+                      Safety-first Electricals
+                    </Typography>
+                  </Stack>
                 </Box>
-              </motion.div>
+              </Box>
             </Box>
           </Stack>
         </Box>

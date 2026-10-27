@@ -12,8 +12,6 @@ export default defineConfig({
         manualChunks: {
           react: ['react', 'react-dom', 'react-router-dom'],
           mui: ['@mui/material', '@emotion/react', '@emotion/styled'],
-          motion: ['framer-motion'],
-          swiper: ['swiper'],
         },
       },
     },

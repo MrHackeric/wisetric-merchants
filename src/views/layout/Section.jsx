@@ -1,10 +1,8 @@
 import { Box, Typography } from "@mui/material";
-import { motion } from "framer-motion";
 
 /**
  * Anchor wrapper for a page section — owns the `id` used by nav links and scroll-spy.
- * Sections that bring their own heading/background (Hero, Services, ...) are rendered as-is;
- * pass `title` (and optionally `subtitle`) to get a standard padded heading.
+ * Lightweight, hardware-accelerated rendering without JS animation libraries.
  */
 export default function Section({ id, title, subtitle, children }) {
   if (!title) {
@@ -25,21 +23,21 @@ export default function Section({ id, title, subtitle, children }) {
         <Box sx={{ mb: { xs: 4, md: 5 } }}>
           <Typography
             variant="h3"
-            component={motion.h3}
-            initial={{ opacity: 0, y: 8 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, amount: 0.4 }}
-            sx={{ fontWeight: 900, lineHeight: 1.2 }}
+            sx={{
+              fontWeight: 900,
+              lineHeight: 1.2,
+              animation: "fadeInUp 0.5s ease-out forwards",
+            }}
           >
             {title}
           </Typography>
           {subtitle && (
             <Typography
-              component={motion.p}
-              initial={{ opacity: 0, y: 6 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, amount: 0.4 }}
-              sx={{ color: "#cbd5e1", mt: 1.5 }}
+              sx={{
+                color: "#cbd5e1",
+                mt: 1.5,
+                animation: "fadeInUp 0.5s ease-out 0.1s forwards",
+              }}
             >
               {subtitle}
             </Typography>

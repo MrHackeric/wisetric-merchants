@@ -1,4 +1,3 @@
-// src/views/components/Contact.jsx
 import { useState } from "react";
 import {
   Grid,
@@ -16,8 +15,8 @@ import {
   Tooltip,
   Checkbox,
   FormControlLabel,
+  Collapse,
 } from "@mui/material";
-import { motion, AnimatePresence } from "framer-motion";
 import EmailIcon from "@mui/icons-material/Email";
 import LocalPhoneIcon from "@mui/icons-material/LocalPhone";
 import SendIcon from "@mui/icons-material/Send";
@@ -30,11 +29,6 @@ import LinkedInIcon from "@mui/icons-material/LinkedIn";
 import OpenInNewIcon from "@mui/icons-material/OpenInNew";
 import { ORANGE, NAVY } from "../../theme";
 import { BRAND } from "../../models/siteModel";
-
-const floatUp = {
-  hidden: { opacity: 0, y: 18 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.55, ease: "easeOut" } },
-};
 
 const reasonsList = [
   "Request a quote",
@@ -116,7 +110,7 @@ export default function Contact() {
           component="img"
           src="/images/tiktok.png"
           alt="TikTok"
-          sx={{ width: 28, height: 28, borderRadius: 1 }}
+          sx={{ width: 24, height: 24, borderRadius: 1 }}
         />
       ),
     },
@@ -128,11 +122,10 @@ export default function Contact() {
     <BoxWrapper>
       <Container maxWidth="lg" sx={{ py: { xs: 6, md: 10 } }}>
         {/* Title */}
-        <motion.div variants={floatUp} initial="hidden" whileInView="show" viewport={{ once: true }}>
+        <Box sx={{ textAlign: "center", mb: 4 }}>
           <Typography
             variant="h3"
             sx={{
-              textAlign: "center",
               fontWeight: 900,
               color: "white",
               mb: 1.5,
@@ -141,262 +134,247 @@ export default function Contact() {
           >
             Contact <span>Us</span>
           </Typography>
-          <Typography sx={{ color: "#cbd5e1", textAlign: "center", mb: 4 }}>
+          <Typography sx={{ color: "#cbd5e1" }}>
             Quick and simple — tell us your name and why you're reaching out.
           </Typography>
-        </motion.div>
+        </Box>
 
         <Grid container spacing={4} justifyContent="center">
           {/* Left: Form */}
           <Grid size={{ xs: 12, md: 6 }}>
-            <motion.div
-              initial={{ opacity: 0, y: 12 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5 }}
+            <Paper
+              elevation={0}
+              sx={{
+                p: { xs: 3, sm: 4 },
+                background: "linear-gradient(135deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01))",
+                color: "white",
+                borderRadius: 3,
+                border: "1px solid rgba(255,255,255,0.06)",
+              }}
             >
-              <Paper
-                elevation={0}
-                sx={{
-                  p: { xs: 3, sm: 4 },
-                  background: "linear-gradient(135deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01))",
-                  color: "white",
-                  borderRadius: 3,
-                  border: "1px solid rgba(255,255,255,0.06)",
-                }}
-              >
-                <Stack spacing={2}>
-                  <TextField
-                    label="Your name"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    placeholder="e.g. Jane Doe"
-                    variant="outlined"
-                    slotProps={{
-                      inputLabel: { sx: { color: "#cbd5e1" } },
-                      input: {
-                        sx: {
-                          color: "white",
-                          "& .MuiOutlinedInput-notchedOutline": { borderColor: "rgba(255,255,255,0.12)" },
-                          "&:hover .MuiOutlinedInput-notchedOutline": { borderColor: `${ORANGE}88` },
-                          "&.Mui-focused .MuiOutlinedInput-notchedOutline": { borderColor: ORANGE },
-                        },
-                      },
-                    }}
-                  />
-
-                  {/* Reason checkboxes */}
-                  <Box>
-                    <Typography sx={{ color: "#cbd5e1", mb: 1 }}>Reason for contacting us</Typography>
-                    <Stack direction="column" spacing={1}>
-                      {reasonsList.map((r) => (
-                        <motion.div
-                          key={r}
-                          whileHover={{ x: 4 }}
-                          transition={{ type: "spring", stiffness: 300 }}
-                          style={{ display: "flex", alignItems: "center" }}
-                        >
-                          <FormControlLabel
-                            control={
-                              <Checkbox
-                                checked={selectedReason === r}
-                                onChange={() => handleReasonToggle(r)}
-                                sx={{ color: "white", "&.Mui-checked": { color: ORANGE } }}
-                              />
-                            }
-                            label={<Typography sx={{ color: "white", fontSize: 14 }}>{r}</Typography>}
-                          />
-                        </motion.div>
-                      ))}
-                    </Stack>
-                  </Box>
-
-                  {/* Preview */}
-                  <Paper
-                    elevation={0}
-                    sx={{
-                      p: 1.5,
-                      borderRadius: 2,
-                      background: "rgba(255,255,255,0.017)",
-                      border: "1px dashed rgba(255,255,255,0.04)",
-                    }}
-                  >
-                    <Typography variant="caption" sx={{ color: "#cbd5e1" }}>
-                      Preview (what will be sent)
-                    </Typography>
-                    <Typography sx={{ color: "white", mt: 1, whiteSpace: "pre-wrap" }}>
-                      {buildMessagePlain()}
-                    </Typography>
-                  </Paper>
-
-                  {/* Status */}
-                  <AnimatePresence>
-                    {status !== "idle" && (
-                      <motion.div
-                        initial={{ opacity: 0, y: -8 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -8 }}
-                      >
-                        <Chip
-                          icon={status === "success" ? <CheckCircleIcon /> : <ErrorIcon />}
-                          label={
-                            status === "success"
-                              ? "Message prepared — finish sending it in the app that just opened"
-                              : "There was an issue. Try again."
-                          }
-                          color={status === "success" ? "success" : "error"}
-                          sx={{ width: "100%", py: 1.1, fontSize: "0.9rem" }}
-                        />
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-
-                  {/* Action buttons */}
-                  <Stack
-                    direction={{ xs: "column", sm: "row" }}
-                    spacing={1.5}
-                    alignItems="center"
-                    justifyContent="space-between"
-                  >
-                    <Button
-                      variant="contained"
-                      onClick={openWhatsApp}
-                      startIcon={<SendIcon />}
-                      sx={{
-                        bgcolor: "#25D366",
+              <Stack spacing={2}>
+                <TextField
+                  label="Your name"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder="e.g. Jane Doe"
+                  variant="outlined"
+                  slotProps={{
+                    inputLabel: { sx: { color: "#cbd5e1" } },
+                    input: {
+                      sx: {
                         color: "white",
-                        fontWeight: 800,
-                        px: 3,
-                        height: 48,
-                        borderRadius: 2,
-                        "&:hover": { opacity: 0.95 },
-                      }}
-                    >
-                      Open WhatsApp
-                    </Button>
+                        "& .MuiOutlinedInput-notchedOutline": { borderColor: "rgba(255,255,255,0.12)" },
+                        "&:hover .MuiOutlinedInput-notchedOutline": { borderColor: `${ORANGE}88` },
+                        "&.Mui-focused .MuiOutlinedInput-notchedOutline": { borderColor: ORANGE },
+                      },
+                    },
+                  }}
+                />
 
-                    <Button
-                      variant="outlined"
-                      onClick={openMailClient}
-                      startIcon={<EmailIcon />}
-                      sx={{
-                        borderColor: `${ORANGE}88`,
-                        color: ORANGE,
-                        fontWeight: 800,
-                        px: 3,
-                        height: 48,
-                        borderRadius: 2,
-                        "&:hover": { borderColor: ORANGE },
-                      }}
-                    >
-                      Email Us
-                    </Button>
-
-                    <Tooltip title={`Call ${BRAND.phone}`}>
-                      <IconButton
-                        aria-label="call"
-                        href={`tel:${String(BRAND.phone || "").replace(/\s/g, "")}`}
+                {/* Reason checkboxes */}
+                <Box>
+                  <Typography sx={{ color: "#cbd5e1", mb: 1 }}>Reason for contacting us</Typography>
+                  <Stack direction="column" spacing={1}>
+                    {reasonsList.map((r) => (
+                      <Box
+                        key={r}
                         sx={{
-                          color: "white",
-                          border: "1px solid rgba(255,255,255,0.1)",
-                          "&:hover": { bgcolor: "rgba(255,255,255,0.05)" },
+                          display: "flex",
+                          alignItems: "center",
+                          transition: "transform 0.2s ease",
+                          "&:hover": { transform: "translateX(4px)" },
                         }}
                       >
-                        <LocalPhoneIcon />
-                      </IconButton>
-                    </Tooltip>
+                        <FormControlLabel
+                          control={
+                            <Checkbox
+                              checked={selectedReason === r}
+                              onChange={() => handleReasonToggle(r)}
+                              sx={{ color: "white", "&.Mui-checked": { color: ORANGE } }}
+                            />
+                          }
+                          label={<Typography sx={{ color: "white", fontSize: 14 }}>{r}</Typography>}
+                        />
+                      </Box>
+                    ))}
                   </Stack>
+                </Box>
+
+                {/* Preview */}
+                <Paper
+                  elevation={0}
+                  sx={{
+                    p: 1.5,
+                    borderRadius: 2,
+                    background: "rgba(255,255,255,0.017)",
+                    border: "1px dashed rgba(255,255,255,0.04)",
+                  }}
+                >
+                  <Typography variant="caption" sx={{ color: "#cbd5e1" }}>
+                    Preview (what will be sent)
+                  </Typography>
+                  <Typography sx={{ color: "white", mt: 1, whiteSpace: "pre-wrap" }}>
+                    {buildMessagePlain()}
+                  </Typography>
+                </Paper>
+
+                {/* Status */}
+                <Collapse in={status !== "idle"}>
+                  <Chip
+                    icon={status === "success" ? <CheckCircleIcon /> : <ErrorIcon />}
+                    label={
+                      status === "success"
+                        ? "Message prepared — finish sending it in the app that just opened"
+                        : "There was an issue. Try again."
+                    }
+                    color={status === "success" ? "success" : "error"}
+                    sx={{ width: "100%", py: 1.1, fontSize: "0.9rem" }}
+                  />
+                </Collapse>
+
+                {/* Action buttons */}
+                <Stack
+                  direction={{ xs: "column", sm: "row" }}
+                  spacing={1.5}
+                  alignItems="center"
+                  justifyContent="space-between"
+                >
+                  <Button
+                    variant="contained"
+                    onClick={openWhatsApp}
+                    startIcon={<SendIcon />}
+                    sx={{
+                      bgcolor: "#25D366",
+                      color: "white",
+                      fontWeight: 800,
+                      px: 3,
+                      height: 48,
+                      borderRadius: 2,
+                      transition: "opacity 0.2s ease, transform 0.2s ease",
+                      "&:hover": { opacity: 0.95, transform: "translateY(-1px)" },
+                    }}
+                  >
+                    Open WhatsApp
+                  </Button>
+
+                  <Button
+                    variant="outlined"
+                    onClick={openMailClient}
+                    startIcon={<EmailIcon />}
+                    sx={{
+                      borderColor: `${ORANGE}88`,
+                      color: ORANGE,
+                      fontWeight: 800,
+                      px: 3,
+                      height: 48,
+                      borderRadius: 2,
+                      transition: "all 0.2s ease",
+                      "&:hover": { borderColor: ORANGE, transform: "translateY(-1px)" },
+                    }}
+                  >
+                    Email Us
+                  </Button>
+
+                  <Tooltip title={`Call ${BRAND.phone}`}>
+                    <IconButton
+                      aria-label="call"
+                      href={`tel:${String(BRAND.phone || "").replace(/\s/g, "")}`}
+                      sx={{
+                        color: "white",
+                        border: "1px solid rgba(255,255,255,0.1)",
+                        transition: "background-color 0.2s ease",
+                        "&:hover": { bgcolor: "rgba(255,255,255,0.08)" },
+                      }}
+                    >
+                      <LocalPhoneIcon />
+                    </IconButton>
+                  </Tooltip>
                 </Stack>
-              </Paper>
-            </motion.div>
+              </Stack>
+            </Paper>
           </Grid>
 
           {/* Right: Info card */}
           <Grid size={{ xs: 12, md: 5 }}>
-            <motion.div
-              initial={{ opacity: 0, y: 12 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.55, delay: 0.08 }}
+            <Paper
+              elevation={0}
+              sx={{
+                p: { xs: 3, sm: 4 },
+                borderRadius: 3,
+                color: "white",
+                height: "100%",
+                background:
+                  "radial-gradient(900px circle at 10% -20%, rgba(247,163,26,0.06), transparent 40%), linear-gradient(135deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01))",
+                border: "1px solid rgba(255,255,255,0.06)",
+                display: "flex",
+                flexDirection: "column",
+                gap: 2,
+              }}
             >
-              <Paper
-                elevation={0}
-                sx={{
-                  p: { xs: 3, sm: 4 },
-                  borderRadius: 3,
-                  color: "white",
-                  height: "100%",
-                  background:
-                    "radial-gradient(900px circle at 10% -20%, rgba(247,163,26,0.06), transparent 40%), linear-gradient(135deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01))",
-                  border: "1px solid rgba(255,255,255,0.06)",
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: 2,
-                }}
-              >
-                <Typography variant="h5" sx={{ fontWeight: 900 }}>
-                  Let’s build something great
-                </Typography>
-                <Typography sx={{ color: "#cbd5e1", mb: 1.5 }}>
-                  We handle wiring, lighting, renovation and supply. Reach out and we'll get back
-                  quickly.
-                </Typography>
+              <Typography variant="h5" sx={{ fontWeight: 900 }}>
+                Let’s build something great
+              </Typography>
+              <Typography sx={{ color: "#cbd5e1", mb: 1.5 }}>
+                We handle wiring, lighting, renovation and supply. Reach out and we'll get back
+                quickly.
+              </Typography>
 
-                <Stack spacing={1.5} sx={{ mt: 1 }}>
-                  <Row
-                    icon={<EmailIcon sx={{ color: ORANGE }} />}
-                    text={BRAND.email}
-                    href={`mailto:${BRAND.email}`}
-                  />
-                  <Row
-                    icon={<LocalPhoneIcon sx={{ color: ORANGE }} />}
-                    text={BRAND.phone}
-                    href={`tel:${String(BRAND.phone || "").replace(/\s/g, "")}`}
-                  />
-                  <Row icon={<OpenInNewIcon sx={{ color: ORANGE }} />} text={BRAND.location} />
+              <Stack spacing={1.5} sx={{ mt: 1 }}>
+                <Row
+                  icon={<EmailIcon sx={{ color: ORANGE }} />}
+                  text={BRAND.email}
+                  href={`mailto:${BRAND.email}`}
+                />
+                <Row
+                  icon={<LocalPhoneIcon sx={{ color: ORANGE }} />}
+                  text={BRAND.phone}
+                  href={`tel:${String(BRAND.phone || "").replace(/\s/g, "")}`}
+                />
+                <Row icon={<OpenInNewIcon sx={{ color: ORANGE }} />} text={BRAND.location} />
+              </Stack>
+
+              {/* Socials */}
+              <Box sx={{ mt: 2 }}>
+                <Typography sx={{ color: "#cbd5e1", mb: 1 }}>Find us on</Typography>
+                <Stack direction="row" spacing={1} flexWrap="wrap">
+                  {socials.map((s) => (
+                    <Tooltip key={s.key} title={s.key.charAt(0).toUpperCase() + s.key.slice(1)}>
+                      <IconButton
+                        aria-label={s.key}
+                        onClick={() => window.open(s.url, "_blank", "noopener,noreferrer")}
+                        sx={{
+                          border: "1px solid rgba(255,255,255,0.1)",
+                          color: "white",
+                          transition: "all 0.2s ease",
+                          "&:hover": { bgcolor: "rgba(255,255,255,0.08)", transform: "translateY(-2px)" },
+                          width: 44,
+                          height: 44,
+                        }}
+                      >
+                        {s.icon}
+                      </IconButton>
+                    </Tooltip>
+                  ))}
                 </Stack>
+              </Box>
 
-                {/* Socials */}
-                <Box sx={{ mt: 2 }}>
-                  <Typography sx={{ color: "#cbd5e1", mb: 1 }}>Find us on</Typography>
-                  <Stack direction="row" spacing={1} flexWrap="wrap">
-                    {socials.map((s) => (
-                      <Tooltip key={s.key} title={s.key.charAt(0).toUpperCase() + s.key.slice(1)}>
-                        <IconButton
-                          aria-label={s.key}
-                          onClick={() => window.open(s.url, "_blank", "noopener,noreferrer")}
-                          sx={{
-                            border: "1px solid rgba(255,255,255,0.1)",
-                            color: "white",
-                            "&:hover": { bgcolor: "rgba(255,255,255,0.05)" },
-                            width: 44,
-                            height: 44,
-                          }}
-                        >
-                          {s.icon}
-                        </IconButton>
-                      </Tooltip>
-                    ))}
-                  </Stack>
-                </Box>
-
-                {/* Services */}
-                <Box sx={{ mt: "auto", display: "flex", alignItems: "center", gap: 1, flexWrap: "wrap" }}>
-                  <Typography sx={{ color: "#9ca3af", fontSize: 13 }}>Services</Typography>
-                  <Stack direction="row" spacing={1} sx={{ ml: 1, flexWrap: "wrap" }}>
-                    {["Wiring", "Interior", "Lighting", "Maintenance"].map((x) => (
-                      <Chip
-                        key={x}
-                        label={x}
-                        sx={{ color: ORANGE, borderColor: ORANGE }}
-                        variant="outlined"
-                        size="small"
-                      />
-                    ))}
-                  </Stack>
-                </Box>
-              </Paper>
-            </motion.div>
+              {/* Services */}
+              <Box sx={{ mt: "auto", display: "flex", alignItems: "center", gap: 1, flexWrap: "wrap" }}>
+                <Typography sx={{ color: "#9ca3af", fontSize: 13 }}>Services</Typography>
+                <Stack direction="row" spacing={1} sx={{ ml: 1, flexWrap: "wrap" }}>
+                  {["Wiring", "Interior", "Lighting", "Maintenance"].map((x) => (
+                    <Chip
+                      key={x}
+                      label={x}
+                      sx={{ color: ORANGE, borderColor: ORANGE }}
+                      variant="outlined"
+                      size="small"
+                    />
+                  ))}
+                </Stack>
+              </Box>
+            </Paper>
           </Grid>
         </Grid>
       </Container>
@@ -420,7 +398,7 @@ export default function Contact() {
   );
 }
 
-/** Gradient Wrapper */
+/** Gradient Wrapper (Static Ambient Gradient — Zero GPU Animation Loop) */
 function BoxWrapper({ children }) {
   return (
     <Box
@@ -430,17 +408,16 @@ function BoxWrapper({ children }) {
         overflow: "hidden",
       }}
     >
-      <motion.div
-        animate={{ rotate: [0, 360] }}
-        transition={{ duration: 120, repeat: Infinity, ease: "linear" }}
-        style={{
+      <Box
+        sx={{
           position: "absolute",
-          top: -260,
-          right: -260,
-          width: 520,
-          height: 520,
+          top: -160,
+          right: -160,
+          width: 450,
+          height: 450,
           background: "radial-gradient(circle, rgba(247,163,26,0.1) 0%, transparent 70%)",
           borderRadius: "50%",
+          pointerEvents: "none",
           zIndex: 0,
         }}
       />
@@ -452,12 +429,17 @@ function BoxWrapper({ children }) {
 /** Row (icon + text) */
 function Row({ icon, text, href }) {
   const content = (
-    <motion.div whileHover={{ x: 5 }} transition={{ type: "spring", stiffness: 300 }}>
+    <Box
+      sx={{
+        transition: "transform 0.2s ease",
+        "&:hover": { transform: "translateX(4px)" },
+      }}
+    >
       <Stack direction="row" spacing={1.5} alignItems="center">
         {icon}
         <Typography sx={{ color: "white" }}>{text}</Typography>
       </Stack>
-    </motion.div>
+    </Box>
   );
   return href ? (
     <a href={href} style={{ textDecoration: "none" }}>

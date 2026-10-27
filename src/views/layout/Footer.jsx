@@ -20,7 +20,6 @@ import FacebookIcon from "@mui/icons-material/Facebook";
 import InstagramIcon from "@mui/icons-material/Instagram";
 import LinkedInIcon from "@mui/icons-material/LinkedIn";
 import TwitterIcon from "@mui/icons-material/Twitter";
-import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { BRAND, NAV_LINKS, navTarget } from "../../models/siteModel";
 import { ORANGE } from "../../theme";
@@ -80,7 +79,8 @@ const FooterLink = ({ to, label }) => (
       px: 0,
       minWidth: 0,
       textTransform: "none",
-      "&:hover": { color: ORANGE, background: "transparent" },
+      transition: "color 0.2s ease, transform 0.2s ease",
+      "&:hover": { color: ORANGE, background: "transparent", transform: "translateX(4px)" },
     }}
     endIcon={<ArrowForwardIcon sx={{ fontSize: 18 }} />}
   >
@@ -89,7 +89,7 @@ const FooterLink = ({ to, label }) => (
 );
 
 export default function Footer() {
-  const logoSrc = "/images/Logo.jpg";
+  const logoSrc = "/images/logo-sm.jpg";
 
   return (
     <Box
@@ -116,12 +116,21 @@ export default function Footer() {
                   textAlign: { xs: "center", md: "left" },
                 }}
               >
-                <motion.img
+                <Box
+                  component="img"
                   src={logoSrc}
                   alt={`${BRAND.name} logo`}
-                  style={{ width: 56, height: 56, borderRadius: 12, objectFit: "cover" }}
-                  animate={{ rotate: [0, 4, -4, 0], scale: [1, 1.06, 1.02, 1] }}
-                  transition={{ duration: 4, repeat: Infinity, repeatType: "loop" }}
+                  width={56}
+                  height={56}
+                  loading="lazy"
+                  sx={{
+                    width: 56,
+                    height: 56,
+                    borderRadius: 3,
+                    objectFit: "cover",
+                    transition: "transform 0.3s ease",
+                    "&:hover": { transform: "scale(1.08) rotate(4deg)" },
+                  }}
                 />
 
                 <Box>
@@ -191,7 +200,11 @@ export default function Footer() {
                     target="_blank"
                     rel="noopener noreferrer"
                     aria-label={social.label}
-                    sx={{ color: "#cbd5e1", "&:hover": { color: social.hover } }}
+                    sx={{
+                      color: "#cbd5e1",
+                      transition: "color 0.2s ease, transform 0.2s ease",
+                      "&:hover": { color: social.hover, transform: "translateY(-2px)" },
+                    }}
                   >
                     {social.icon}
                   </IconButton>

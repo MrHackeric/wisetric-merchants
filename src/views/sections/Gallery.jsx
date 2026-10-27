@@ -3,53 +3,34 @@ import {
   Grid,
   Box,
   Typography,
-  useMediaQuery,
-  useTheme,
   Stack,
 } from "@mui/material";
-import { motion } from "framer-motion";
 import { ORANGE, NAVY } from "../../theme";
 
 export default function Gallery() {
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
-
-  // Video refs
   const filmRef = useRef(null);
   const lightingRef = useRef(null);
 
   // Play each video only while it's on screen (saves battery + data), pause it otherwise
   useEffect(() => {
     const videos = [filmRef.current, lightingRef.current].filter(Boolean);
-    const cleanups = [];
-
-    const play = (video) => {
-      const attempt = video.play();
-      if (attempt && typeof attempt.catch === "function") {
-        attempt.catch(() => {
-          // Autoplay blocked (e.g. low-power mode) — start on the first touch/click instead
-          const retry = () => video.play().catch(() => {});
-          document.addEventListener("pointerdown", retry, { once: true });
-          cleanups.push(() => document.removeEventListener("pointerdown", retry));
-        });
-      }
-    };
+    if (!videos.length) return;
 
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
-          if (entry.isIntersecting) play(entry.target);
-          else entry.target.pause();
+          if (entry.isIntersecting) {
+            entry.target.play().catch(() => {});
+          } else {
+            entry.target.pause();
+          }
         });
       },
-      { threshold: 0.35 }
+      { threshold: 0.3 }
     );
-    videos.forEach((video) => observer.observe(video));
 
-    return () => {
-      observer.disconnect();
-      cleanups.forEach((fn) => fn());
-    };
+    videos.forEach((video) => observer.observe(video));
+    return () => observer.disconnect();
   }, []);
 
   // Gallery data
@@ -74,14 +55,6 @@ export default function Gallery() {
     },
   ];
 
-  // Motion presets
-  const cardMotion = {
-    initial: { opacity: 0, y: 24, scale: 0.98 },
-    whileInView: { opacity: 1, y: 0, scale: 1 },
-    viewport: { once: true, margin: "-80px" },
-    transition: { duration: 0.6, ease: "easeOut" },
-  };
-
   return (
     <Box
       sx={{
@@ -92,19 +65,17 @@ export default function Gallery() {
         overflow: "hidden",
       }}
     >
-      {/* Background Glow */}
+      {/* Static Ambient Glow (Zero continuous GPU redraw) */}
       <Box
-        component={motion.div}
-        animate={{ rotate: [0, 360] }}
-        transition={{ duration: 120, repeat: Infinity, ease: "linear" }}
         sx={{
           position: "absolute",
-          top: -320,
-          right: -320,
-          width: 640,
-          height: 640,
-          background: `radial-gradient(circle, ${ORANGE}15 0%, transparent 70%)`,
+          top: -160,
+          right: -160,
+          width: 500,
+          height: 500,
+          background: `radial-gradient(circle, ${ORANGE}14 0%, transparent 70%)`,
           borderRadius: "50%",
+          pointerEvents: "none",
           zIndex: 0,
         }}
       />
@@ -113,11 +84,6 @@ export default function Gallery() {
         {/* Title */}
         <Typography
           variant="h2"
-          component={motion.h2}
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
           sx={{
             fontWeight: 900,
             mb: { xs: 4, md: 6 },
@@ -146,26 +112,19 @@ export default function Gallery() {
 
         {/* ROW 1 — IMAGES */}
         <Grid container columns={12} spacing={0} sx={{ width: "100%" }}>
-          {photos.map((p, idx) => (
+          {photos.map((p) => (
             <Grid key={p.id} size={{ xs: 12, sm: 4 }}>
               <Box
-                component={motion.div}
-                {...cardMotion}
-                transition={{ ...cardMotion.transition, delay: idx * 0.08 }}
-                whileHover={
-                  !isMobile
-                    ? {
-                        scale: 1.03,
-                        boxShadow: "0 24px 60px rgba(0,0,0,0.45)",
-                      }
-                    : undefined
-                }
                 sx={{
                   width: "100%",
                   height: "100%",
                   minHeight: { xs: 260, sm: 360, md: 420 },
                   position: "relative",
                   overflow: "hidden",
+                  cursor: "pointer",
+                  "&:hover img": {
+                    transform: "scale(1.08)",
+                  },
                 }}
               >
                 {/* Image */}
@@ -180,9 +139,9 @@ export default function Gallery() {
                     width: "100%",
                     height: "100%",
                     objectFit: "cover",
-                    transition: "transform 0.6s ease",
-                    transform: "scale(1.02)",
-                    "&:hover": { transform: "scale(1.08)" },
+                    transition: "transform 0.5s ease",
+                    transform: "scale(1.01)",
+                    willChange: "transform",
                   }}
                 />
 
@@ -192,13 +151,13 @@ export default function Gallery() {
                     position: "absolute",
                     inset: 0,
                     background:
-                      "linear-gradient(to top, rgba(6,16,40,0.9) 0%, rgba(6,16,40,0.2) 50%, rgba(6,16,40,0) 70%)",
+                      "linear-gradient(to top, rgba(6,16,40,0.92) 0%, rgba(6,16,40,0.2) 50%, rgba(6,16,40,0) 70%)",
                   }}
                 />
 
                 {/* Text */}
                 <Stack
-                  spacing={1}
+                  spacing={0.5}
                   sx={{
                     position: "absolute",
                     bottom: 0,
@@ -211,22 +170,12 @@ export default function Gallery() {
                   <Typography
                     variant="h6"
                     sx={{ fontWeight: 800, letterSpacing: 0.5 }}
-                    component={motion.div}
-                    initial={{ opacity: 0, y: 10 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 0.5, delay: 0.1 + idx * 0.05 }}
                   >
                     {p.title}
                   </Typography>
                   <Typography
                     variant="body2"
                     sx={{ color: "#e2e8f0" }}
-                    component={motion.div}
-                    initial={{ opacity: 0, y: 10 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 0.5, delay: 0.2 + idx * 0.05 }}
                   >
                     {p.desc}
                   </Typography>
@@ -240,74 +189,60 @@ export default function Gallery() {
         <Box sx={{ height: { xs: 32, md: 50 } }} />
 
         {/* ROW 2 — VIDEOS */}
-        <Grid container columns={12} spacing={0} sx={{ width: "100%" }}>
-          {[{ ref: filmRef, label: "Film", src: "/videos/film.mp4" },
-           { ref: lightingRef, label: "Lighting", src: "/videos/lighting.mp4" }]
-           .map((v, idx) => (
-            <Grid key={idx} size={{ xs: 12, md: 6 }}>
+        <Grid container columns={12} spacing={{ xs: 2, md: 3 }} sx={{ width: "100%", px: { xs: 2, md: 4 } }}>
+          {[
+            { ref: filmRef, label: "Film", src: "/videos/film.mp4", poster: "/images/event-lighting.jpg" },
+            { ref: lightingRef, label: "Lighting", src: "/videos/lighting.mp4", poster: "/images/lighting.jpg" },
+          ].map((v) => (
+            <Grid key={v.label} size={{ xs: 12, md: 6 }}>
               <Box
-                component={motion.div}
-                {...cardMotion}
-                transition={{ ...cardMotion.transition, delay: idx * 0.1 }}
                 sx={{
+                  aspectRatio: "16/9",
                   width: "100%",
-                  position: "relative",
+                  borderRadius: 2,
                   overflow: "hidden",
-                  minHeight: { xs: 260, sm: 360, md: 420 },
-                  p: { xs: 2, md: 0 },
+                  boxShadow: "0 16px 40px rgba(0,0,0,0.35)",
+                  border: "1px solid rgba(255,255,255,0.08)",
+                  position: "relative",
+                  transition: "transform 0.3s ease, box-shadow 0.3s ease",
+                  "&:hover": {
+                    transform: "translateY(-4px)",
+                    boxShadow: `0 24px 50px rgba(0,0,0,0.45), 0 0 0 1px ${ORANGE}30`,
+                  },
                 }}
               >
-                <Box
-                  component={motion.div}
-                  animate={{ y: [0, -6, 0] }}
-                  transition={{
-                    duration: 6,
-                    repeat: Infinity,
-                    ease: "easeInOut",
-                  }}
-                  sx={{
-                    aspectRatio: "16/9",
+                <video
+                  ref={v.ref}
+                  src={v.src}
+                  poster={v.poster}
+                  muted
+                  loop
+                  playsInline
+                  preload="none"
+                  aria-label={`${v.label} showcase`}
+                  style={{
                     width: "100%",
+                    height: "100%",
+                    objectFit: "cover",
+                    display: "block",
+                  }}
+                />
+                <Box
+                  sx={{
+                    position: "absolute",
+                    top: 12,
+                    left: 12,
+                    bgcolor: "rgba(0,0,0,0.6)",
+                    border: "1px solid rgba(255,255,255,0.15)",
                     borderRadius: 2,
-                    overflow: "hidden",
-                    boxShadow: "0 24px 60px rgba(0,0,0,0.35)",
-                    border: "1px solid rgba(255,255,255,0.08)",
-                    position: "relative", // needed for absolute-positioned label badge
+                    px: 1.2,
+                    py: 0.5,
+                    color: "white",
+                    fontWeight: 800,
+                    fontSize: "0.85rem",
                   }}
                 >
-                  <video
-                    ref={v.ref}
-                    src={v.src}
-                    poster="/images/Logo.jpg"
-                    muted
-                    loop
-                    playsInline
-                    preload="metadata"
-                    aria-label={`${v.label} showcase`}
-                    style={{
-                      width: "100%",
-                      height: "100%",
-                      objectFit: "cover",
-                      display: "block",
-                    }}
-                  />
-                  <Box
-                    sx={{
-                      position: "absolute",
-                      top: 12,
-                      left: 12,
-                      bgcolor: "rgba(0,0,0,0.45)",
-                      border: "1px solid rgba(255,255,255,0.15)",
-                      borderRadius: 2,
-                      px: 1.2,
-                      py: 0.5,
-                      color: "white",
-                      fontWeight: 800,
-                      fontSize: "0.9rem",
-                    }}
-                  >
-                    {v.label}
-                  </Box>
+                  {v.label}
                 </Box>
               </Box>
             </Grid>

@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { Box, Typography, useMediaQuery, useTheme } from "@mui/material";
-import { motion } from "framer-motion";
 import Grid from "@mui/material/Grid";
 
 // Icons
@@ -14,17 +13,15 @@ import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import { SERVICES } from "../../models/siteModel";
 import { ORANGE, NAVY } from "../../theme";
 
-// ✅ Icons dictionary
 const ICONS = {
-  electrical: <ElectricBoltIcon sx={{ fontSize: 50, color: ORANGE }} />,
-  lighting: <LightModeIcon sx={{ fontSize: 50, color: ORANGE }} />,
-  renovation: <ConstructionIcon sx={{ fontSize: 50, color: ORANGE }} />,
-  supply: <BoltIcon sx={{ fontSize: 50, color: ORANGE }} />,
-  support: <SupportAgentIcon sx={{ fontSize: 50, color: ORANGE }} />,
-  quality: <CheckCircleIcon sx={{ fontSize: 50, color: ORANGE }} />,
+  electrical: <ElectricBoltIcon sx={{ fontSize: 44, color: ORANGE }} />,
+  lighting: <LightModeIcon sx={{ fontSize: 44, color: ORANGE }} />,
+  renovation: <ConstructionIcon sx={{ fontSize: 44, color: ORANGE }} />,
+  supply: <BoltIcon sx={{ fontSize: 44, color: ORANGE }} />,
+  support: <SupportAgentIcon sx={{ fontSize: 44, color: ORANGE }} />,
+  quality: <CheckCircleIcon sx={{ fontSize: 44, color: ORANGE }} />,
 };
 
-// ✅ Extra hover text
 const HOVER_TEXT = {
   electrical: "Certified electricians for all installation and repair needs.",
   lighting: "Custom lighting solutions for any space or event.",
@@ -34,7 +31,6 @@ const HOVER_TEXT = {
   quality: "Rigorous testing and quality assurance on all work.",
 };
 
-// ✅ Service images
 const SERVICE_IMAGES = [
   "/images/consultation.jpg",
   "/images/lighting.jpg",
@@ -44,18 +40,14 @@ const SERVICE_IMAGES = [
   "/images/testing.jpg",
 ];
 
-// ✅ Motion wrapper (new API)
-const MotionBox = motion.create(Box);
-
 const Services = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
-
   const [openIndex, setOpenIndex] = useState(null);
+
   const handleToggle = (index) => {
     setOpenIndex(openIndex === index ? null : index);
   };
-
 
   return (
     <Box
@@ -95,142 +87,149 @@ const Services = () => {
 
       {/* Services Grid */}
       <Grid container spacing={3}>
-        {SERVICES.map((service, index) => (
-          <Grid key={service.id} size={{ xs: 12, sm: 6, md: 4 }}>
-            <MotionBox
-              onClick={() => isMobile && handleToggle(index)} // 👈 toggle on tap for mobile
-              initial={{ opacity: 0, y: 50 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.15 }}
-              viewport={{ once: true }}
-              whileHover={!isMobile ? { scale: 1.03 } : {}}
-              sx={{
-                width: "100%",
-                height: 400,
-                borderRadius: 3,
-                overflow: "hidden",
-                position: "relative",
-                boxShadow: "0 10px 30px rgba(0,0,0,0.3)",
-                cursor: "pointer",
-              }}
-            >
-              {/* Service Image */}
-              <MotionBox
-                className="service-image"
-                sx={{
-                  position: "absolute",
-                  top: 0,
-                  left: 0,
-                  width: "100%",
-                  height: "100%",
-                  backgroundImage: `url(${SERVICE_IMAGES[index]})`,
-                  backgroundSize: "cover",
-                  backgroundPosition: "center",
-                  filter: "brightness(0.8)",
-                }}
-                whileHover={!isMobile ? { scale: 1.05, filter: "brightness(0.6)" } : {}}
-                transition={{ duration: 0.5 }}
-              />
+        {SERVICES.map((service, index) => {
+          const isOpen = isMobile && openIndex === index;
 
-              {/* Gradient Overlay */}
+          return (
+            <Grid key={service.id} size={{ xs: 12, sm: 6, md: 4 }}>
               <Box
+                onClick={() => isMobile && handleToggle(index)}
                 sx={{
-                  position: "absolute",
-                  top: 0,
-                  left: 0,
                   width: "100%",
-                  height: "100%",
-                  background: `linear-gradient(to top, ${NAVY}ee, transparent 60%)`,
-                }}
-              />
-
-              {/* Content */}
-              <Box
-                sx={{
+                  height: 400,
+                  borderRadius: 3,
+                  overflow: "hidden",
                   position: "relative",
-                  zIndex: 2,
-                  height: "100%",
-                  display: "flex",
-                  flexDirection: "column",
-                  justifyContent: "flex-end",
-                  p: 4,
+                  boxShadow: "0 10px 30px rgba(0,0,0,0.3)",
+                  cursor: "pointer",
+                  transition: "transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease",
+                  "&:hover": {
+                    transform: isMobile ? "none" : "translateY(-6px)",
+                    boxShadow: "0 20px 45px rgba(0,0,0,0.5), 0 0 0 1px rgba(247,163,26,0.3)",
+                    "& .service-img": {
+                      transform: isMobile ? "none" : "scale(1.06)",
+                      filter: isMobile ? "brightness(0.8)" : "brightness(0.6)",
+                    },
+                    "& .service-extra": {
+                      opacity: 1,
+                      transform: "translateY(0)",
+                    },
+                  },
                 }}
               >
-                {/* Icon */}
+                {/* Background Image */}
+                <Box
+                  className="service-img"
+                  sx={{
+                    position: "absolute",
+                    top: 0,
+                    left: 0,
+                    width: "100%",
+                    height: "100%",
+                    backgroundImage: `url(${SERVICE_IMAGES[index]})`,
+                    backgroundSize: "cover",
+                    backgroundPosition: "center",
+                    filter: "brightness(0.8)",
+                    transition: "transform 0.5s ease, filter 0.5s ease",
+                    willChange: "transform",
+                  }}
+                />
+
+                {/* Gradient Overlay */}
                 <Box
                   sx={{
-                    width: 70,
-                    height: 70,
-                    bgcolor: `${ORANGE}20`,
-                    backdropFilter: "blur(5px)",
-                    borderRadius: "50%",
+                    position: "absolute",
+                    top: 0,
+                    left: 0,
+                    width: "100%",
+                    height: "100%",
+                    background: `linear-gradient(to top, ${NAVY}f0 0%, rgba(30,38,66,0.7) 45%, transparent 75%)`,
+                  }}
+                />
+
+                {/* Content */}
+                <Box
+                  sx={{
+                    position: "relative",
+                    zIndex: 2,
+                    height: "100%",
                     display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    border: `2px solid ${ORANGE}40`,
-                    mb: 3,
+                    flexDirection: "column",
+                    justifyContent: "flex-end",
+                    p: 4,
                   }}
                 >
-                  {ICONS[service.icon]}
-                </Box>
-
-                {/* Title */}
-                <Typography
-                  variant="h5"
-                  sx={{
-                    fontWeight: 800,
-                    color: "white",
-                    mb: 1,
-                  }}
-                >
-                  {service.title}
-                </Typography>
-
-                {/* Description */}
-                <Typography
-                  variant="body1"
-                  sx={{
-                    color: "#e2e8f0",
-                    mb: 2,
-                  }}
-                >
-                  {service.description}
-                </Typography>
-
-                {/* Hover / Extra Info */}
-                <MotionBox
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{
-                    opacity: isMobile
-                      ? openIndex === index
-                        ? 1
-                        : 0
-                      : 0,
-                    y: isMobile
-                      ? openIndex === index
-                        ? 0
-                        : 20
-                      : 20,
-                  }}
-                  whileHover={!isMobile ? { opacity: 1, y: 0 } : {}}
-                  transition={{ duration: 0.3 }}
-                >
-                  <Typography
-                    variant="body2"
+                  {/* Icon */}
+                  <Box
                     sx={{
-                      color: ORANGE,
-                      fontWeight: 600,
-                      mt: 2,
-                      fontStyle: "italic",
+                      width: 64,
+                      height: 64,
+                      bgcolor: "rgba(247,163,26,0.15)",
+                      borderRadius: "50%",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      border: `2px solid ${ORANGE}50`,
+                      mb: 2.5,
+                      boxShadow: "0 4px 14px rgba(0,0,0,0.2)",
                     }}
                   >
-                    {HOVER_TEXT[service.icon]}
+                    {ICONS[service.icon]}
+                  </Box>
+
+                  {/* Title */}
+                  <Typography
+                    variant="h5"
+                    sx={{
+                      fontWeight: 800,
+                      color: "white",
+                      mb: 1,
+                    }}
+                  >
+                    {service.title}
                   </Typography>
-                </MotionBox>
+
+                  {/* Description */}
+                  <Typography
+                    variant="body1"
+                    sx={{
+                      color: "#e2e8f0",
+                      mb: 1.5,
+                      fontSize: "0.95rem",
+                      lineHeight: 1.5,
+                    }}
+                  >
+                    {service.description}
+                  </Typography>
+
+                  {/* Hover / Extra Info */}
+                  <Box
+                    className="service-extra"
+                    sx={{
+                      opacity: isOpen ? 1 : 0,
+                      transform: isOpen ? "translateY(0)" : "translateY(12px)",
+                      transition: "opacity 0.25s ease, transform 0.25s ease",
+                      maxHeight: isOpen || !isMobile ? 50 : 0,
+                      overflow: "hidden",
+                    }}
+                  >
+                    <Typography
+                      variant="body2"
+                      sx={{
+                        color: ORANGE,
+                        fontWeight: 600,
+                        mt: 0.5,
+                        fontStyle: "italic",
+                      }}
+                    >
+                      {HOVER_TEXT[service.icon]}
+                    </Typography>
+                  </Box>
+                </Box>
               </Box>
-            </MotionBox>
-          </Grid>
-        ))}
+            </Grid>
+          );
+        })}
       </Grid>
     </Box>
   );

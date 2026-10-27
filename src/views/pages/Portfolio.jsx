@@ -9,7 +9,6 @@ import {
   Fade,
   Backdrop,
 } from "@mui/material";
-import { motion, AnimatePresence } from "framer-motion";
 import CloseIcon from "@mui/icons-material/Close";
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
@@ -37,90 +36,73 @@ import {
 const DARK_BG = "#060d1e";
 const CARD_BG = "rgba(10,20,50,0.9)";
 
-// ─── Floating particle background ────────────────────────────────────────────
-const PARTICLES = Array.from({ length: 22 }, (_, i) => ({
-  id: i,
-  x: Math.random() * 100,
-  y: Math.random() * 100,
-  size: 1.5 + Math.random() * 3.5,
-  delay: Math.random() * 6,
-  duration: 7 + Math.random() * 9,
-}));
-
-function ParticleField() {
+// ─── Static Ambient Header Background (Zero Continuous JS Loops) ──────────────
+function HeaderGlow() {
   return (
     <Box
       aria-hidden
-      sx={{ position: "absolute", inset: 0, overflow: "hidden", zIndex: 0, pointerEvents: "none" }}
-    >
-      {PARTICLES.map((p) => (
-        <Box
-          key={p.id}
-          component={motion.div}
-          animate={{ y: [0, -40, 0], opacity: [0.15, 0.55, 0.15] }}
-          transition={{ duration: p.duration, delay: p.delay, repeat: Infinity, ease: "easeInOut" }}
-          sx={{
-            position: "absolute",
-            left: `${p.x}%`,
-            top: `${p.y}%`,
-            width: p.size,
-            height: p.size,
-            borderRadius: "50%",
-            bgcolor: ORANGE,
-            filter: "blur(1px)",
-          }}
-        />
-      ))}
-    </Box>
+      sx={{
+        position: "absolute",
+        top: -140,
+        left: "50%",
+        transform: "translateX(-50%)",
+        width: 800,
+        height: 440,
+        background: `radial-gradient(ellipse, ${ORANGE}22 0%, transparent 70%)`,
+        borderRadius: "50%",
+        zIndex: 0,
+        filter: "blur(40px)",
+        pointerEvents: "none",
+      }}
+    />
   );
 }
 
 // ─── Category filter pill ─────────────────────────────────────────────────────
 function FilterPill({ label, active, onClick, count }) {
   return (
-    <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.93 }}>
-      <Chip
-        label={
-          <Stack direction="row" alignItems="center" spacing={0.6}>
-            <span>{label}</span>
-            {count !== undefined && (
-              <Box
-                component="span"
-                sx={{
-                  fontSize: "0.65rem",
-                  fontWeight: 800,
-                  bgcolor: active ? `${NAVY}55` : `${ORANGE}22`,
-                  color: active ? NAVY : ORANGE,
-                  borderRadius: "6px",
-                  px: 0.7,
-                  py: 0.1,
-                  lineHeight: 1.6,
-                }}
-              >
-                {count}
-              </Box>
-            )}
-          </Stack>
-        }
-        onClick={onClick}
-        sx={{
-          cursor: "pointer",
-          fontWeight: 700,
-          fontSize: "0.82rem",
-          px: 1.5,
-          height: 36,
-          bgcolor: active ? ORANGE : "rgba(255,255,255,0.05)",
-          color: active ? NAVY : "rgba(255,255,255,0.8)",
-          border: active ? "none" : "1px solid rgba(255,255,255,0.1)",
-          boxShadow: active ? `0 4px 20px ${ORANGE}50` : "none",
-          transition: "all 0.25s ease",
-          "& .MuiChip-label": { px: 0 },
-          "&:hover": {
-            bgcolor: active ? "#ffb03a" : "rgba(255,255,255,0.09)",
-          },
-        }}
-      />
-    </motion.div>
+    <Chip
+      label={
+        <Stack direction="row" alignItems="center" spacing={0.6}>
+          <span>{label}</span>
+          {count !== undefined && (
+            <Box
+              component="span"
+              sx={{
+                fontSize: "0.65rem",
+                fontWeight: 800,
+                bgcolor: active ? `${NAVY}55` : `${ORANGE}22`,
+                color: active ? NAVY : ORANGE,
+                borderRadius: "6px",
+                px: 0.7,
+                py: 0.1,
+                lineHeight: 1.6,
+              }}
+            >
+              {count}
+            </Box>
+          )}
+        </Stack>
+      }
+      onClick={onClick}
+      sx={{
+        cursor: "pointer",
+        fontWeight: 700,
+        fontSize: "0.82rem",
+        px: 1.5,
+        height: 36,
+        bgcolor: active ? ORANGE : "rgba(255,255,255,0.05)",
+        color: active ? NAVY : "rgba(255,255,255,0.8)",
+        border: active ? "none" : "1px solid rgba(255,255,255,0.1)",
+        boxShadow: active ? `0 4px 20px ${ORANGE}50` : "none",
+        transition: "transform 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease",
+        "& .MuiChip-label": { px: 0 },
+        "&:hover": {
+          bgcolor: active ? "#ffb03a" : "rgba(255,255,255,0.09)",
+          transform: "scale(1.04)",
+        },
+      }}
+    />
   );
 }
 
@@ -137,7 +119,6 @@ function ImageCountBadge({ count }) {
         top: 10,
         left: 10,
         bgcolor: "rgba(0,0,0,0.65)",
-        backdropFilter: "blur(6px)",
         borderRadius: "8px",
         px: 1,
         py: 0.4,
@@ -184,7 +165,7 @@ function GalleryCard({ item, index, layout, onClick }) {
     if (hovered && images.length > 1) {
       intervalRef.current = setInterval(() => {
         setImgIndex((i) => (i + 1) % images.length);
-      }, 900);
+      }, 1000);
     } else {
       clearInterval(intervalRef.current);
       setImgIndex(0);
@@ -201,13 +182,6 @@ function GalleryCard({ item, index, layout, onClick }) {
 
   return (
     <Box
-      component={motion.div}
-      layout
-      initial={{ opacity: 0, y: 36, scale: 0.95 }}
-      animate={{ opacity: 1, y: 0, scale: 1 }}
-      exit={{ opacity: 0, scale: 0.91 }}
-      transition={{ duration: 0.42, delay: index * 0.06, ease: "easeOut" }}
-      whileHover={{ y: -7 }}
       onClick={onClick}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
@@ -228,28 +202,25 @@ function GalleryCard({ item, index, layout, onClick }) {
         overflow: "hidden",
         height: cardHeight,
         outline: "none",
-        "&:focus-visible": { boxShadow: `0 0 0 3px ${ORANGE}` },
         cursor: "pointer",
+        transition: "transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease",
+        transform: hovered ? "translateY(-6px)" : "translateY(0)",
         boxShadow: hovered
-          ? `0 24px 60px rgba(0,0,0,0.65), 0 0 0 1px ${ORANGE}30`
+          ? `0 20px 50px rgba(0,0,0,0.65), 0 0 0 1px ${ORANGE}40`
           : "0 6px 24px rgba(0,0,0,0.35)",
-        transition: "box-shadow 0.3s ease",
         border: "1px solid rgba(255,255,255,0.07)",
         bgcolor: CARD_BG,
+        "&:focus-visible": { boxShadow: `0 0 0 3px ${ORANGE}` },
       }}
     >
-      {/* Image */}
-      <AnimatePresence initial={false} mode="sync">
+      {/* Images with CSS transition */}
+      {images.map((src, i) => (
         <Box
-          key={images[imgIndex]}
-          component={motion.img}
-          src={images[imgIndex]}
+          key={src}
+          component="img"
+          src={src}
           alt={item.title}
           loading="lazy"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1, scale: hovered ? 1.07 : 1.01 }}
-          exit={{ opacity: 0 }}
-          transition={{ opacity: { duration: 0.4 }, scale: { duration: 0.6, ease: "easeOut" } }}
           sx={{
             position: "absolute",
             inset: 0,
@@ -257,9 +228,13 @@ function GalleryCard({ item, index, layout, onClick }) {
             height: "100%",
             objectFit: "cover",
             display: "block",
+            opacity: i === imgIndex ? 1 : 0,
+            transform: hovered ? "scale(1.06)" : "scale(1.01)",
+            transition: "opacity 0.4s ease, transform 0.6s cubic-bezier(0.16, 1, 0.3, 1)",
+            willChange: "transform, opacity",
           }}
         />
-      </AnimatePresence>
+      ))}
 
       {/* Base gradient */}
       <Box
@@ -272,12 +247,16 @@ function GalleryCard({ item, index, layout, onClick }) {
         }}
       />
 
-      {/* Hover overlay */}
+      {/* Hover darkener */}
       <Box
-        component={motion.div}
-        animate={{ opacity: hovered ? 1 : 0 }}
-        transition={{ duration: 0.25 }}
-        sx={{ position: "absolute", inset: 0, background: "rgba(4,8,24,0.38)", zIndex: 1 }}
+        sx={{
+          position: "absolute",
+          inset: 0,
+          background: "rgba(4,8,24,0.35)",
+          opacity: hovered ? 1 : 0,
+          transition: "opacity 0.25s ease",
+          zIndex: 1,
+        }}
       />
 
       {/* Image count badge */}
@@ -287,10 +266,15 @@ function GalleryCard({ item, index, layout, onClick }) {
 
       {/* Category badge */}
       <Box
-        component={motion.div}
-        animate={{ opacity: hovered ? 1 : 0, y: hovered ? 0 : -8 }}
-        transition={{ duration: 0.25 }}
-        sx={{ position: "absolute", top: 10, right: 10, zIndex: 3 }}
+        sx={{
+          position: "absolute",
+          top: 10,
+          right: 10,
+          zIndex: 3,
+          opacity: hovered ? 1 : 0.85,
+          transform: hovered ? "translateY(0)" : "translateY(-4px)",
+          transition: "all 0.25s ease",
+        }}
       >
         <Chip
           label={item.category}
@@ -306,29 +290,27 @@ function GalleryCard({ item, index, layout, onClick }) {
         />
       </Box>
 
-      {/* Zoom icon */}
+      {/* Zoom icon cue */}
       <Box
-        component={motion.div}
-        animate={{ opacity: hovered ? 1 : 0, scale: hovered ? 1 : 0.55 }}
-        transition={{ duration: 0.25 }}
         sx={{
           position: "absolute",
           top: "35%",
           left: "50%",
-          transform: "translate(-50%, -50%)",
-          bgcolor: "rgba(255,255,255,0.11)",
-          backdropFilter: "blur(8px)",
+          transform: hovered ? "translate(-50%, -50%) scale(1)" : "translate(-50%, -50%) scale(0.6)",
+          opacity: hovered ? 1 : 0,
+          transition: "transform 0.25s ease, opacity 0.25s ease",
+          bgcolor: "rgba(0,0,0,0.5)",
           borderRadius: "50%",
-          width: 54,
-          height: 54,
+          width: 50,
+          height: 50,
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          border: `1px solid rgba(255,255,255,0.22)`,
+          border: "1px solid rgba(255,255,255,0.25)",
           zIndex: 3,
         }}
       >
-        <ZoomInIcon sx={{ color: "white", fontSize: 26 }} />
+        <ZoomInIcon sx={{ color: "white", fontSize: 24 }} />
       </Box>
 
       {/* Bottom text */}
@@ -336,7 +318,6 @@ function GalleryCard({ item, index, layout, onClick }) {
         spacing={0.6}
         sx={{ position: "absolute", bottom: 0, left: 0, right: 0, p: { xs: 2, md: 2.5 }, zIndex: 3 }}
       >
-        {/* Image dots indicator */}
         <ImageDots total={images.length} current={imgIndex} />
 
         <Typography
@@ -352,16 +333,18 @@ function GalleryCard({ item, index, layout, onClick }) {
         </Typography>
 
         <Box
-          component={motion.div}
-          animate={{ opacity: hovered ? 1 : 0, y: hovered ? 0 : 8 }}
-          transition={{ duration: 0.3 }}
+          sx={{
+            opacity: hovered ? 1 : 0.75,
+            transform: hovered ? "translateY(0)" : "translateY(4px)",
+            transition: "opacity 0.25s ease, transform 0.25s ease",
+          }}
         >
           <Typography sx={{ color: "#94a3b8", fontSize: "0.78rem", lineHeight: 1.4 }}>
             {item.description}
           </Typography>
 
           {/* Meta row */}
-          <Stack direction="row" spacing={2} sx={{ mt: 1.2 }}>
+          <Stack direction="row" spacing={2} sx={{ mt: 1 }}>
             {item.client && (
               <Stack direction="row" alignItems="center" spacing={0.5}>
                 <BusinessIcon sx={{ color: ORANGE, fontSize: 12 }} />
@@ -395,10 +378,6 @@ function FeaturedCard({ item, onOpen }) {
 
   return (
     <Box
-      component={motion.div}
-      initial={{ opacity: 0, y: 30 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.65 }}
       sx={{
         mx: { xs: 2, sm: 4, md: 8 },
         mb: { xs: 4, md: 6 },
@@ -409,20 +388,21 @@ function FeaturedCard({ item, onOpen }) {
         boxShadow: `0 0 0 1px ${ORANGE}18, 0 32px 80px rgba(0,0,0,0.6)`,
         height: { xs: 320, sm: 420, md: 500 },
         cursor: "pointer",
+        transition: "box-shadow 0.3s ease, border-color 0.3s ease",
+        "&:hover": {
+          boxShadow: `0 0 0 1px ${ORANGE}40, 0 40px 90px rgba(0,0,0,0.7)`,
+          borderColor: `${ORANGE}60`,
+        },
       }}
       onClick={() => onOpen(item)}
     >
-      {/* Image */}
-      <AnimatePresence initial={false} mode="sync">
+      {/* Images with CSS crossfade */}
+      {images.map((src, i) => (
         <Box
-          key={images[imgIndex]}
-          component={motion.img}
-          src={images[imgIndex]}
+          key={src}
+          component="img"
+          src={src}
           alt={item.title}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.5 }}
           sx={{
             position: "absolute",
             inset: 0,
@@ -430,9 +410,11 @@ function FeaturedCard({ item, onOpen }) {
             height: "100%",
             objectFit: "cover",
             display: "block",
+            opacity: i === imgIndex ? 1 : 0,
+            transition: "opacity 0.4s ease-in-out",
           }}
         />
-      </AnimatePresence>
+      ))}
 
       {/* Gradient */}
       <Box
@@ -440,7 +422,7 @@ function FeaturedCard({ item, onOpen }) {
           position: "absolute",
           inset: 0,
           background:
-            "linear-gradient(120deg, rgba(4,8,24,0.9) 0%, rgba(4,8,24,0.4) 55%, rgba(4,8,24,0.1) 100%)",
+            "linear-gradient(120deg, rgba(4,8,24,0.92) 0%, rgba(4,8,24,0.45) 55%, rgba(4,8,24,0.1) 100%)",
           zIndex: 1,
         }}
       />
@@ -459,17 +441,16 @@ function FeaturedCard({ item, onOpen }) {
           borderRadius: "8px",
           px: 1.5,
           py: 0.5,
-          fontWeight: 800,
-          fontSize: "0.72rem",
-          letterSpacing: 1,
           zIndex: 3,
         }}
       >
         <Box
-          component={motion.div}
-          animate={{ scale: [1, 1.3, 1] }}
-          transition={{ duration: 1.4, repeat: Infinity }}
-          sx={{ width: 6, height: 6, borderRadius: "50%", bgcolor: NAVY }}
+          sx={{
+            width: 6,
+            height: 6,
+            borderRadius: "50%",
+            bgcolor: NAVY,
+          }}
         />
         <Typography sx={{ fontSize: "0.72rem", fontWeight: 800, letterSpacing: 1, color: NAVY }}>
           FEATURED PROJECT
@@ -493,10 +474,10 @@ function FeaturedCard({ item, onOpen }) {
                 [side]: 14,
                 transform: "translateY(-50%)",
                 bgcolor: "rgba(0,0,0,0.5)",
-                backdropFilter: "blur(6px)",
                 border: "1px solid rgba(255,255,255,0.15)",
                 color: "white",
                 zIndex: 4,
+                transition: "all 0.2s ease",
                 "&:hover": { bgcolor: `${ORANGE}cc`, color: NAVY },
               }}
             >
@@ -541,7 +522,6 @@ function FeaturedCard({ item, onOpen }) {
             </Typography>
           )}
         </Stack>
-        {/* Image dots */}
         <Box sx={{ mt: 2 }}>
           <ImageDots total={images.length} current={imgIndex} />
         </Box>
@@ -553,8 +533,7 @@ function FeaturedCard({ item, onOpen }) {
           position: "absolute",
           bottom: 20,
           right: 20,
-          bgcolor: "rgba(255,255,255,0.1)",
-          backdropFilter: "blur(8px)",
+          bgcolor: "rgba(0,0,0,0.6)",
           border: "1px solid rgba(255,255,255,0.15)",
           borderRadius: "10px",
           px: 1.5,
@@ -572,7 +551,7 @@ function FeaturedCard({ item, onOpen }) {
 }
 
 // ─── Video player card ────────────────────────────────────────────────────────
-function VideoCard({ video, index }) {
+function VideoCard({ video }) {
   const videoRef = useRef(null);
   const [playing, setPlaying] = useState(false);
   const [muted, setMuted] = useState(true);
@@ -581,7 +560,6 @@ function VideoCard({ video, index }) {
   const togglePlay = () => {
     const v = videoRef.current;
     if (!v) return;
-    // `playing` is driven by the video's own play/pause events below
     if (v.paused) v.play().catch(() => {});
     else v.pause();
   };
@@ -595,11 +573,6 @@ function VideoCard({ video, index }) {
 
   return (
     <Box
-      component={motion.div}
-      initial={{ opacity: 0, y: 32 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
-      transition={{ duration: 0.55, delay: index * 0.15 }}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       sx={{
@@ -610,11 +583,12 @@ function VideoCard({ video, index }) {
         boxShadow: hovered
           ? `0 28px 70px rgba(0,0,0,0.65), 0 0 0 1px ${ORANGE}28`
           : "0 10px 36px rgba(0,0,0,0.4)",
-        transition: "box-shadow 0.35s ease",
+        transition: "box-shadow 0.35s ease, transform 0.3s ease",
+        transform: hovered ? "translateY(-4px)" : "translateY(0)",
         bgcolor: CARD_BG,
       }}
     >
-      {/* Video element */}
+      {/* Video element (preload="none" prevents blocking page load) */}
       <Box
         component="video"
         ref={videoRef}
@@ -623,7 +597,7 @@ function VideoCard({ video, index }) {
         muted
         loop
         playsInline
-        preload="metadata"
+        preload="none"
         onPlay={() => setPlaying(true)}
         onPause={() => setPlaying(false)}
         onClick={togglePlay}
@@ -638,9 +612,6 @@ function VideoCard({ video, index }) {
 
       {/* Play/pause overlay */}
       <Box
-        component={motion.div}
-        animate={{ opacity: !playing || hovered ? 1 : 0 }}
-        transition={{ duration: 0.25 }}
         onClick={togglePlay}
         onKeyDown={(e) => {
           if (e.key === "Enter" || e.key === " ") {
@@ -665,17 +636,14 @@ function VideoCard({ video, index }) {
             : "linear-gradient(to top, rgba(4,8,24,0.75) 0%, rgba(4,8,24,0.1) 100%)",
           cursor: "pointer",
           zIndex: 2,
+          opacity: !playing || hovered ? 1 : 0,
+          transition: "opacity 0.25s ease",
         }}
       >
         <Box
-          component={motion.div}
-          whileHover={{ scale: 1.1 }}
-          whileTap={{ scale: 0.92 }}
-          animate={{ opacity: !playing || hovered ? 1 : 0, scale: !playing || hovered ? 1 : 0.7 }}
-          transition={{ duration: 0.2 }}
           sx={{
-            width: 64,
-            height: 64,
+            width: 60,
+            height: 60,
             borderRadius: "50%",
             bgcolor: playing ? "rgba(0,0,0,0.5)" : ORANGE,
             display: "flex",
@@ -683,12 +651,14 @@ function VideoCard({ video, index }) {
             justifyContent: "center",
             border: playing ? "2px solid rgba(255,255,255,0.25)" : "none",
             boxShadow: playing ? "none" : `0 8px 32px ${ORANGE}66`,
+            transition: "transform 0.2s ease",
+            "&:hover": { transform: "scale(1.1)" },
           }}
         >
           {playing ? (
-            <PauseIcon sx={{ color: "white", fontSize: 30 }} />
+            <PauseIcon sx={{ color: "white", fontSize: 28 }} />
           ) : (
-            <PlayArrowIcon sx={{ color: NAVY, fontSize: 32, ml: 0.4 }} />
+            <PlayArrowIcon sx={{ color: NAVY, fontSize: 30, ml: 0.3 }} />
           )}
         </Box>
       </Box>
@@ -703,7 +673,6 @@ function VideoCard({ video, index }) {
         <Box
           sx={{
             bgcolor: "rgba(0,0,0,0.6)",
-            backdropFilter: "blur(6px)",
             borderRadius: "8px",
             px: 1,
             py: 0.4,
@@ -720,7 +689,6 @@ function VideoCard({ video, index }) {
           size="small"
           sx={{
             bgcolor: "rgba(0,0,0,0.6)",
-            backdropFilter: "blur(6px)",
             border: "1px solid rgba(255,255,255,0.1)",
             color: "white",
             width: 30,
@@ -807,10 +775,10 @@ function Lightbox({ items, currentIndex, onClose, onPrev, onNext }) {
       onClose={onClose}
       closeAfterTransition
       slots={{ backdrop: Backdrop }}
-      slotProps={{ backdrop: { timeout: 300, sx: { bgcolor: "rgba(0,0,0,0.95)" } } }}
+      slotProps={{ backdrop: { timeout: 250, sx: { bgcolor: "rgba(0,0,0,0.92)" } } }}
       sx={{ display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1500 }}
     >
-      <Fade in>
+      <Fade in timeout={250}>
         <Box
           sx={{
             position: "relative",
@@ -844,110 +812,102 @@ function Lightbox({ items, currentIndex, onClose, onPrev, onNext }) {
           </Stack>
 
           {/* Main image container */}
-          <AnimatePresence mode="wait">
+          <Box
+            sx={{
+              borderRadius: "16px",
+              overflow: "hidden",
+              position: "relative",
+              boxShadow: `0 40px 90px rgba(0,0,0,0.75), 0 0 0 1px ${ORANGE}20`,
+              border: "1px solid rgba(255,255,255,0.09)",
+            }}
+          >
             <Box
+              component="img"
               key={`${item.id}-${imgIdx}`}
-              component={motion.div}
-              initial={{ opacity: 0, scale: 0.97 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 1.02 }}
-              transition={{ duration: 0.28 }}
+              src={images[imgIdx]}
+              alt={`${item.title} — photo ${imgIdx + 1}`}
               sx={{
-                borderRadius: "16px",
-                overflow: "hidden",
-                position: "relative",
-                boxShadow: `0 40px 90px rgba(0,0,0,0.75), 0 0 0 1px ${ORANGE}20`,
-                border: "1px solid rgba(255,255,255,0.09)",
+                width: "100%",
+                maxHeight: "72vh",
+                objectFit: "cover",
+                display: "block",
+                animation: "fadeIn 0.25s ease-out forwards",
+              }}
+            />
+
+            {/* Caption */}
+            <Box
+              sx={{
+                p: { xs: 2.5, md: 3.5 },
+                background: `linear-gradient(135deg, ${DARK_BG}f5, #0d1a38f5)`,
+                borderTop: "1px solid rgba(255,255,255,0.07)",
               }}
             >
-              <Box
-                component="img"
-                src={images[imgIdx]}
-                alt={`${item.title} — photo ${imgIdx + 1}`}
-                sx={{
-                  width: "100%",
-                  maxHeight: "72vh",
-                  objectFit: "cover",
-                  display: "block",
-                }}
-              />
-
-              {/* Caption */}
-              <Box
-                sx={{
-                  p: { xs: 2.5, md: 3.5 },
-                  background: `linear-gradient(135deg, ${DARK_BG}f5, #0d1a38f5)`,
-                  borderTop: "1px solid rgba(255,255,255,0.07)",
-                }}
-              >
-                <Stack direction="row" justifyContent="space-between" alignItems="flex-start" flexWrap="wrap" gap={1.5}>
-                  <Box>
-                    <Typography variant="h6" sx={{ fontWeight: 900, color: "white", mb: 0.5 }}>
-                      {item.title}
-                    </Typography>
-                    <Typography sx={{ color: "#94a3b8", fontSize: "0.85rem", lineHeight: 1.6 }}>
-                      {item.description}
-                    </Typography>
-                    <Stack direction="row" spacing={2.5} sx={{ mt: 1.5 }}>
-                      {item.client && (
-                        <Stack direction="row" alignItems="center" spacing={0.6}>
-                          <BusinessIcon sx={{ color: ORANGE, fontSize: 14 }} />
-                          <Typography sx={{ color: ORANGE, fontSize: "0.78rem", fontWeight: 700 }}>
-                            {item.client}
-                          </Typography>
-                        </Stack>
-                      )}
-                      {item.year && (
-                        <Stack direction="row" alignItems="center" spacing={0.5}>
-                          <CalendarTodayIcon sx={{ color: "#64748b", fontSize: 13 }} />
-                          <Typography sx={{ color: "#64748b", fontSize: "0.78rem", fontWeight: 600 }}>
-                            {item.year}
-                          </Typography>
-                        </Stack>
-                      )}
-                    </Stack>
-                  </Box>
-                  <Chip
-                    label={item.category}
-                    sx={{ bgcolor: `${ORANGE}22`, color: ORANGE, border: `1px solid ${ORANGE}55`, fontWeight: 700 }}
-                  />
-                </Stack>
-
-                {/* Thumbnail strip */}
-                {images.length > 1 && (
-                  <Stack direction="row" spacing={1} sx={{ mt: 2, overflowX: "auto" }}>
-                    {images.map((src, i) => (
-                      <Box
-                        key={i}
-                        component={motion.div}
-                        whileHover={{ scale: 1.06 }}
-                        onClick={() => setImgIdx(i)}
-                        sx={{
-                          flexShrink: 0,
-                          width: 64,
-                          height: 44,
-                          borderRadius: "8px",
-                          overflow: "hidden",
-                          cursor: "pointer",
-                          border: i === imgIdx ? `2px solid ${ORANGE}` : "2px solid rgba(255,255,255,0.1)",
-                          opacity: i === imgIdx ? 1 : 0.55,
-                          transition: "all 0.2s ease",
-                          "&:hover": { opacity: 0.85 },
-                        }}
-                      >
-                        <Box
-                          component="img"
-                          src={src}
-                          alt={`thumb ${i + 1}`}
-                          sx={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
-                        />
-                      </Box>
-                    ))}
+              <Stack direction="row" justifyContent="space-between" alignItems="flex-start" flexWrap="wrap" gap={1.5}>
+                <Box>
+                  <Typography variant="h6" sx={{ fontWeight: 900, color: "white", mb: 0.5 }}>
+                    {item.title}
+                  </Typography>
+                  <Typography sx={{ color: "#94a3b8", fontSize: "0.85rem", lineHeight: 1.6 }}>
+                    {item.description}
+                  </Typography>
+                  <Stack direction="row" spacing={2.5} sx={{ mt: 1.5 }}>
+                    {item.client && (
+                      <Stack direction="row" alignItems="center" spacing={0.6}>
+                        <BusinessIcon sx={{ color: ORANGE, fontSize: 14 }} />
+                        <Typography sx={{ color: ORANGE, fontSize: "0.78rem", fontWeight: 700 }}>
+                          {item.client}
+                        </Typography>
+                      </Stack>
+                    )}
+                    {item.year && (
+                      <Stack direction="row" alignItems="center" spacing={0.5}>
+                        <CalendarTodayIcon sx={{ color: "#64748b", fontSize: 13 }} />
+                        <Typography sx={{ color: "#64748b", fontSize: "0.78rem", fontWeight: 600 }}>
+                          {item.year}
+                        </Typography>
+                      </Stack>
+                    )}
                   </Stack>
-                )}
-              </Box>
+                </Box>
+                <Chip
+                  label={item.category}
+                  sx={{ bgcolor: `${ORANGE}22`, color: ORANGE, border: `1px solid ${ORANGE}55`, fontWeight: 700 }}
+                />
+              </Stack>
+
+              {/* Thumbnail strip */}
+              {images.length > 1 && (
+                <Stack direction="row" spacing={1} sx={{ mt: 2, overflowX: "auto" }}>
+                  {images.map((src, i) => (
+                    <Box
+                      key={i}
+                      onClick={() => setImgIdx(i)}
+                      sx={{
+                        flexShrink: 0,
+                        width: 64,
+                        height: 44,
+                        borderRadius: "8px",
+                        overflow: "hidden",
+                        cursor: "pointer",
+                        border: i === imgIdx ? `2px solid ${ORANGE}` : "2px solid rgba(255,255,255,0.1)",
+                        opacity: i === imgIdx ? 1 : 0.55,
+                        transition: "all 0.2s ease",
+                        "&:hover": { opacity: 0.9, transform: "scale(1.05)" },
+                      }}
+                    >
+                      <Box
+                        component="img"
+                        src={src}
+                        alt={`thumb ${i + 1}`}
+                        sx={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+                      />
+                    </Box>
+                  ))}
+                </Stack>
+              )}
             </Box>
-          </AnimatePresence>
+          </Box>
 
           {/* Prev / Next project arrows */}
           {[
@@ -966,9 +926,8 @@ function Lightbox({ items, currentIndex, onClose, onPrev, onNext }) {
                 bgcolor: disabled ? "rgba(255,255,255,0.03)" : "rgba(255,255,255,0.1)",
                 border: "1px solid rgba(255,255,255,0.1)",
                 color: disabled ? "rgba(255,255,255,0.15)" : "white",
-                backdropFilter: "blur(8px)",
-                "&:hover": { bgcolor: `${ORANGE}33`, color: ORANGE },
                 transition: "all 0.2s ease",
+                "&:hover": { bgcolor: `${ORANGE}33`, color: ORANGE },
               }}
             >
               {icon}
@@ -988,9 +947,6 @@ export default function Portfolio() {
 
   const allItems = PORTFOLIO_ITEMS;
   const featuredItem = allItems.find((it) => it.featured) || allItems[0];
-  // "All" shows the featured project in its own spotlight card, so the grid below excludes it.
-  // A specific category hides the spotlight, so the grid must include the featured project
-  // (otherwise its own category — e.g. "Design" — looked empty).
   const gridItems = allItems.filter((it) => it.id !== featuredItem.id);
 
   const filtered =
@@ -1005,7 +961,6 @@ export default function Portfolio() {
 
   const projectCount = activeCategory === "All" ? allItems.length : filtered.length;
 
-  // Lightbox on the filtered set
   const filteredWithFeatured =
     activeCategory === "All"
       ? allItems
@@ -1043,7 +998,6 @@ export default function Portfolio() {
         minHeight: "100vh",
         background: `linear-gradient(180deg, ${DARK_BG} 0%, #0c1530 40%, #0f1a3a 100%)`,
         position: "relative",
-        // `clip`, not `hidden`: hidden turns this into a scroll container and breaks the sticky filter bar
         overflowX: "clip",
       }}
     >
@@ -1057,36 +1011,10 @@ export default function Portfolio() {
           overflow: "hidden",
         }}
       >
-        <ParticleField />
-
-        {/* Glow blob */}
-        <Box
-          component={motion.div}
-          animate={{ scale: [1, 1.18, 1], opacity: [0.2, 0.38, 0.2] }}
-          transition={{ duration: 9, repeat: Infinity, ease: "easeInOut" }}
-          aria-hidden
-          sx={{
-            position: "absolute",
-            top: -140,
-            left: "50%",
-            transform: "translateX(-50%)",
-            width: 800,
-            height: 440,
-            background: `radial-gradient(ellipse, ${ORANGE}1e 0%, transparent 72%)`,
-            borderRadius: "50%",
-            zIndex: 0,
-            filter: "blur(36px)",
-          }}
-        />
+        <HeaderGlow />
 
         {/* Back to home */}
-        <Box
-          component={motion.div}
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.5 }}
-          sx={{ position: "relative", zIndex: 1, mb: 4 }}
-        >
+        <Box sx={{ position: "relative", zIndex: 1, mb: 4 }}>
           <Box
             component={Link}
             to="/"
@@ -1098,8 +1026,8 @@ export default function Portfolio() {
               textDecoration: "none",
               fontWeight: 600,
               fontSize: "0.88rem",
-              transition: "color 0.2s ease",
-              "&:hover": { color: ORANGE },
+              transition: "color 0.2s ease, transform 0.2s ease",
+              "&:hover": { color: ORANGE, transform: "translateX(-2px)" },
             }}
           >
             <ArrowBackIcon sx={{ fontSize: 17 }} />
@@ -1109,11 +1037,7 @@ export default function Portfolio() {
 
         {/* Title block */}
         <Box sx={{ position: "relative", zIndex: 1, textAlign: "center" }}>
-          <motion.div
-            initial={{ opacity: 0, y: 28 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.55, delay: 0.1 }}
-          >
+          <Box sx={{ mb: 2 }}>
             <Chip
               label={`${BRAND.name} — OUR WORK`}
               sx={{
@@ -1121,113 +1045,95 @@ export default function Portfolio() {
                 color: ORANGE,
                 border: `1px solid ${ORANGE}40`,
                 fontWeight: 700,
-                mb: 3,
+                mb: 2,
                 px: 2,
                 letterSpacing: 1.2,
                 fontSize: "0.7rem",
                 height: 30,
               }}
             />
-          </motion.div>
+          </Box>
 
-          <motion.div
-            initial={{ opacity: 0, y: 28 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.18 }}
+          <Typography
+            variant="h1"
+            sx={{
+              fontWeight: 900,
+              fontSize: { xs: "2.8rem", sm: "3.8rem", md: "5rem" },
+              lineHeight: 1.02,
+              mb: 3,
+              letterSpacing: -2,
+              color: "white",
+            }}
           >
-            <Typography
-              variant="h1"
+            Project{" "}
+            <Box
+              component="span"
               sx={{
-                fontWeight: 900,
-                fontSize: { xs: "2.8rem", sm: "3.8rem", md: "5rem" },
-                lineHeight: 1.02,
-                mb: 3,
-                letterSpacing: -2,
-                color: "white",
+                color: ORANGE,
+                position: "relative",
+                "&::after": {
+                  content: '""',
+                  position: "absolute",
+                  bottom: 6,
+                  left: 0,
+                  width: "100%",
+                  height: 12,
+                  bgcolor: `${ORANGE}22`,
+                  zIndex: -1,
+                  borderRadius: 3,
+                },
               }}
             >
-              Project{" "}
-              <Box
-                component="span"
-                sx={{
-                  color: ORANGE,
-                  position: "relative",
-                  "&::after": {
-                    content: '""',
-                    position: "absolute",
-                    bottom: 6,
-                    left: 0,
-                    width: "100%",
-                    height: 12,
-                    bgcolor: `${ORANGE}22`,
-                    zIndex: -1,
-                    borderRadius: 3,
-                  },
-                }}
-              >
-                Portfolio
-              </Box>
-            </Typography>
-          </motion.div>
+              Portfolio
+            </Box>
+          </Typography>
 
-          <motion.div
-            initial={{ opacity: 0, y: 18 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.55, delay: 0.28 }}
+          <Typography
+            sx={{
+              color: "#64748b",
+              fontSize: { xs: "1rem", md: "1.15rem" },
+              maxWidth: 520,
+              mx: "auto",
+              lineHeight: 1.7,
+            }}
           >
-            <Typography
-              sx={{
-                color: "#64748b",
-                fontSize: { xs: "1rem", md: "1.15rem" },
-                maxWidth: 520,
-                mx: "auto",
-                lineHeight: 1.7,
-              }}
-            >
-              A curated showcase of electrical, lighting, renovation, and commissioning work
-              delivered across Kenya.
-            </Typography>
-          </motion.div>
+            A curated showcase of electrical, lighting, renovation, and commissioning work
+            delivered across Kenya.
+          </Typography>
 
           {/* Stats row */}
-          <motion.div
-            initial={{ opacity: 0, y: 18 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.55, delay: 0.4 }}
+          <Stack
+            direction="row"
+            spacing={{ xs: 3, md: 7 }}
+            justifyContent="center"
+            divider={
+              <Box sx={{ width: 1, bgcolor: "rgba(255,255,255,0.06)", alignSelf: "stretch", my: 1 }} />
+            }
+            sx={{ mt: 6 }}
           >
-            <Stack
-              direction="row"
-              spacing={{ xs: 3, md: 7 }}
-              justifyContent="center"
-              divider={
-                <Box sx={{ width: 1, bgcolor: "rgba(255,255,255,0.06)", alignSelf: "stretch", my: 1 }} />
-              }
-              sx={{ mt: 6 }}
-            >
-              {[
-                { value: "200+", label: "Projects Delivered" },
-                { value: "50+", label: "Happy Clients" },
-                { value: "8+", label: "Years Active" },
-              ].map((stat) => (
-                <Box key={stat.label} sx={{ textAlign: "center" }}>
-                  <Typography
-                    sx={{
-                      fontSize: { xs: "1.8rem", md: "2.4rem" },
-                      fontWeight: 900,
-                      color: ORANGE,
-                      lineHeight: 1,
-                      letterSpacing: -1,
-                    }}
-                  >
-                    {stat.value}
-                  </Typography>
-                  <Typography sx={{ color: "#475569", fontSize: "0.75rem", fontWeight: 700, mt: 0.5, letterSpacing: 0.5 }}>
-                    {stat.label}
-                  </Typography>
-                </Box>
-              ))}
-            </Stack>
-          </motion.div>
+            {[
+              { value: "200+", label: "Projects Delivered" },
+              { value: "50+", label: "Happy Clients" },
+              { value: "8+", label: "Years Active" },
+            ].map((stat) => (
+              <Box key={stat.label} sx={{ textAlign: "center" }}>
+                <Typography
+                  sx={{
+                    fontSize: { xs: "1.8rem", md: "2.4rem" },
+                    fontWeight: 900,
+                    color: ORANGE,
+                    lineHeight: 1,
+                    letterSpacing: -1,
+                  }}
+                >
+                  {stat.value}
+                </Typography>
+                <Typography sx={{ color: "#475569", fontSize: "0.75rem", fontWeight: 700, mt: 0.5, letterSpacing: 0.5 }}>
+                  {stat.label}
+                </Typography>
+              </Box>
+            ))}
+          </Stack>
         </Box>
       </Box>
 
@@ -1248,10 +1154,6 @@ export default function Portfolio() {
 
       {/* ── Filter & layout controls ── */}
       <Box
-        component={motion.div}
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.5, delay: 0.5 }}
         sx={{
           px: { xs: 3, sm: 5, md: 10 },
           mb: { xs: 3, md: 4 },
@@ -1259,8 +1161,7 @@ export default function Portfolio() {
           top: "var(--nav-h)",
           zIndex: 100,
           py: 2,
-          background: "rgba(6,13,30,0.88)",
-          backdropFilter: "blur(16px)",
+          background: "rgba(6,13,30,0.92)",
           borderBottom: "1px solid rgba(255,255,255,0.05)",
           borderTop: "1px solid rgba(255,255,255,0.04)",
         }}
@@ -1320,47 +1221,32 @@ export default function Portfolio() {
 
       {/* ── Gallery grid ── */}
       <Box sx={{ px: { xs: 2, sm: 4, md: 8 }, pb: { xs: 8, md: 10 } }}>
-        <AnimatePresence mode="wait">
-          {filtered.length === 0 ? (
-            <Box
-              key="empty"
-              component={motion.div}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              sx={{ textAlign: "center", py: 16 }}
-            >
-              <Typography sx={{ color: "#334155", fontSize: "1.05rem" }}>
-                No projects in this category yet.
-              </Typography>
-            </Box>
-          ) : (
-            <Box
-              key={activeCategory + layout}
-              component={motion.div}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.22 }}
-              sx={{
-                display: "grid",
-                gridTemplateColumns: gridCols,
-                gap: { xs: 2, md: 2.5 },
-                alignItems: layout === "masonry" ? "start" : "stretch",
-              }}
-            >
-              {filtered.map((item, index) => (
-                <GalleryCard
-                  key={item.id}
-                  item={item}
-                  index={index}
-                  layout={layout}
-                  onClick={() => openLightbox(item)}
-                />
-              ))}
-            </Box>
-          )}
-        </AnimatePresence>
+        {filtered.length === 0 ? (
+          <Box sx={{ textAlign: "center", py: 16 }}>
+            <Typography sx={{ color: "#334155", fontSize: "1.05rem" }}>
+              No projects in this category yet.
+            </Typography>
+          </Box>
+        ) : (
+          <Box
+            sx={{
+              display: "grid",
+              gridTemplateColumns: gridCols,
+              gap: { xs: 2, md: 2.5 },
+              alignItems: layout === "masonry" ? "start" : "stretch",
+            }}
+          >
+            {filtered.map((item, index) => (
+              <GalleryCard
+                key={item.id}
+                item={item}
+                index={index}
+                layout={layout}
+                onClick={() => openLightbox(item)}
+              />
+            ))}
+          </Box>
+        )}
       </Box>
 
       {/* ── Video Reel section ── */}
@@ -1371,14 +1257,7 @@ export default function Portfolio() {
         }}
       >
         {/* Section header */}
-        <Box
-          component={motion.div}
-          initial={{ opacity: 0, y: 24 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.55 }}
-          sx={{ mb: { xs: 4, md: 5 } }}
-        >
+        <Box sx={{ mb: { xs: 4, md: 5 } }}>
           <Stack direction="row" alignItems="center" spacing={2} sx={{ mb: 1 }}>
             <Box sx={{ flex: 1, height: 1, bgcolor: "rgba(255,255,255,0.06)" }} />
             <Chip
@@ -1420,19 +1299,14 @@ export default function Portfolio() {
             gap: { xs: 3, md: 4 },
           }}
         >
-          {PORTFOLIO_VIDEOS.map((video, i) => (
-            <VideoCard key={video.id} video={video} index={i} />
+          {PORTFOLIO_VIDEOS.map((video) => (
+            <VideoCard key={video.id} video={video} />
           ))}
         </Box>
       </Box>
 
       {/* ── CTA strip ── */}
       <Box
-        component={motion.div}
-        initial={{ opacity: 0, y: 30 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
-        transition={{ duration: 0.6 }}
         sx={{
           mx: { xs: 2, sm: 4, md: 8 },
           mb: 12,
@@ -1446,34 +1320,6 @@ export default function Portfolio() {
           textAlign: "center",
         }}
       >
-        {/* Glow */}
-        <Box
-          aria-hidden
-          sx={{
-            position: "absolute",
-            top: -100,
-            right: -100,
-            width: 360,
-            height: 360,
-            background: `radial-gradient(circle, ${ORANGE}18 0%, transparent 70%)`,
-            borderRadius: "50%",
-            zIndex: 0,
-          }}
-        />
-        <Box
-          aria-hidden
-          sx={{
-            position: "absolute",
-            bottom: -80,
-            left: -80,
-            width: 280,
-            height: 280,
-            background: `radial-gradient(circle, ${ORANGE}10 0%, transparent 70%)`,
-            borderRadius: "50%",
-            zIndex: 0,
-          }}
-        />
-
         <Box sx={{ position: "relative", zIndex: 1 }}>
           <Typography
             variant="h4"
@@ -1493,61 +1339,49 @@ export default function Portfolio() {
 
           <Stack direction={{ xs: "column", sm: "row" }} spacing={2} justifyContent="center" alignItems="center">
             <Box
-              component={motion.div}
-              whileHover={{ scale: 1.04 }}
-              whileTap={{ scale: 0.97 }}
+              component={Link}
+              to="/#contact"
+              sx={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 1.2,
+                bgcolor: ORANGE,
+                color: NAVY,
+                fontWeight: 900,
+                fontSize: "0.95rem",
+                px: 4,
+                py: 1.7,
+                borderRadius: "12px",
+                textDecoration: "none",
+                boxShadow: `0 8px 30px ${ORANGE}44`,
+                transition: "all 0.25s ease",
+                "&:hover": { bgcolor: "#ffb03a", transform: "translateY(-2px)", boxShadow: `0 14px 40px ${ORANGE}66` },
+              }}
             >
-              <Box
-                component={Link}
-                to="/#contact"
-                sx={{
-                  display: "inline-flex",
-                  alignItems: "center",
-                  gap: 1.2,
-                  bgcolor: ORANGE,
-                  color: NAVY,
-                  fontWeight: 900,
-                  fontSize: "0.95rem",
-                  px: 4,
-                  py: 1.7,
-                  borderRadius: "12px",
-                  textDecoration: "none",
-                  boxShadow: `0 8px 30px ${ORANGE}44`,
-                  transition: "all 0.25s ease",
-                  "&:hover": { bgcolor: "#ffb03a", boxShadow: `0 14px 40px ${ORANGE}66` },
-                }}
-              >
-                Get a Free Quote →
-              </Box>
+              Get a Free Quote →
             </Box>
 
             <Box
-              component={motion.div}
-              whileHover={{ scale: 1.04 }}
-              whileTap={{ scale: 0.97 }}
+              component="a"
+              href={`tel:${BRAND.phone.replace(/\s+/g, "")}`}
+              sx={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 1.2,
+                bgcolor: "transparent",
+                color: "white",
+                fontWeight: 700,
+                fontSize: "0.95rem",
+                px: 3.5,
+                py: 1.7,
+                borderRadius: "12px",
+                textDecoration: "none",
+                border: "1px solid rgba(255,255,255,0.14)",
+                transition: "all 0.25s ease",
+                "&:hover": { border: `1px solid ${ORANGE}60`, color: ORANGE, transform: "translateY(-2px)" },
+              }}
             >
-              <Box
-                component="a"
-                href={`tel:${BRAND.phone.replace(/\s+/g, "")}`}
-                sx={{
-                  display: "inline-flex",
-                  alignItems: "center",
-                  gap: 1.2,
-                  bgcolor: "transparent",
-                  color: "white",
-                  fontWeight: 700,
-                  fontSize: "0.95rem",
-                  px: 3.5,
-                  py: 1.7,
-                  borderRadius: "12px",
-                  textDecoration: "none",
-                  border: "1px solid rgba(255,255,255,0.14)",
-                  transition: "all 0.25s ease",
-                  "&:hover": { border: `1px solid ${ORANGE}60`, color: ORANGE, bgcolor: `${ORANGE}0c` },
-                }}
-              >
-                {BRAND.phone}
-              </Box>
+              {BRAND.phone}
             </Box>
           </Stack>
         </Box>
